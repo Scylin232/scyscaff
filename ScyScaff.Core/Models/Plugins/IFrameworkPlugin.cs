@@ -1,6 +1,4 @@
-﻿using ScyScaff.Core.Models.Parsing;
-
-namespace ScyScaff.Core.Models.Plugins;
+﻿namespace ScyScaff.Core.Models.Plugins;
 
 public interface IFrameworkPlugin
 {
@@ -9,10 +7,5 @@ public interface IFrameworkPlugin
     string[] SupportedAuth { get; }
     string[] SupportedDatabases { get; }
     
-    void GenerateFrameworkFiles(
-        string directory, 
-        string projectName,
-        string serviceName,
-        Microservice belongedMicroservice
-    );
+    string GetTemplateTreePath();
 }

@@ -4,8 +4,11 @@ auth: keycloak
 default_framework: aspnet
 default_database: postgresql
 
-microservices:
-  product:
-    fields:
-      price: decimal
-      description: string
+services:
+  Product:
+    models:
+      Product:
+        price: decimal
+        description: string
+      Supplier:
+        name: string

@@ -1,8 +1,8 @@
-﻿namespace ScyScaff.Core.Models.Plugins;
+﻿namespace ScyScaff.Core.Models.Builder;
 
-public class DirectoryTreeNode(string name)
+public class DirectoryTreeNode(string path)
 {
-    public string Name { get; } = name;
+    public string Path { get; } = path;
     public List<DirectoryTreeNode> Children { get; } = new();
     
     public void AddChild(DirectoryTreeNode child)

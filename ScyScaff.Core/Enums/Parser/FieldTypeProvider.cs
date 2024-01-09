@@ -1,4 +1,4 @@
-﻿namespace ScyScaff.Core.Enums;
+﻿namespace ScyScaff.Core.Enums.Parser;
 
 public enum FieldTypeProvider
 {

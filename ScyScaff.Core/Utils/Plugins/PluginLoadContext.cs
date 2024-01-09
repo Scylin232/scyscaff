@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 
-namespace ScyScaff.Core.Utils;
+namespace ScyScaff.Core.Utils.Plugins;
 
 internal class PluginLoadContext(string pluginPath) : AssemblyLoadContext
 {

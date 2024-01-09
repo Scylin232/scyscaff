@@ -1,6 +1,6 @@
-﻿using ScyScaff.Core.Models.Plugins;
+﻿using ScyScaff.Core.Models.Builder;
 
-namespace ScyScaff.Core.Utils;
+namespace ScyScaff.Core.Utils.Builder;
 
 public static class DirectoryTree
 {

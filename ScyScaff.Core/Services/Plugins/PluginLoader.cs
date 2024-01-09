@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using ScyScaff.Core.Models.Plugins;
-using ScyScaff.Core.Utils;
+using ScyScaff.Core.Utils.Plugins;
 
-namespace ScyScaff.Core.Services;
+namespace ScyScaff.Core.Services.Plugins;
 
 internal static class PluginLoader
 {

@@ -1,4 +1,4 @@
-﻿namespace ScyScaff.Core.Models.Parsing;
+﻿namespace ScyScaff.Core.Models.Parser;
 
 internal class ScaffolderConfig
 {
@@ -8,5 +8,5 @@ internal class ScaffolderConfig
     public string DefaultFramework { get; set; } = string.Empty;
     public string DefaultDatabase { get; set; } = string.Empty;
     
-    public Dictionary<string, Microservice> Microservices { get; set; } = new();
+    public Dictionary<string, ScaffolderService> Services { get; set; } = new();
 }

@@ -1,4 +1,4 @@
-﻿namespace ScyScaff.Core.Utils;
+﻿namespace ScyScaff.Core.Utils.CLI;
 
 internal static class Constants
 {

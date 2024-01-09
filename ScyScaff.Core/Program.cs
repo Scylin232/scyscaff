@@ -3,10 +3,12 @@ using CommandLine;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using ScyScaff.Core.Models.CLI;
-using ScyScaff.Core.Models.Parsing;
+using ScyScaff.Core.Models.Parser;
+using ScyScaff.Core.Utils.CLI;
 using ScyScaff.Core.Models.Plugins;
-using ScyScaff.Core.Services;
-using ScyScaff.Core.Utils;
+using ScyScaff.Core.Services.Builder;
+using ScyScaff.Core.Services.Parser;
+using ScyScaff.Core.Services.Plugins;
 
 // Parse given arguments and start callback with input data (Serves as application entry point).
 await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options =>
@@ -47,7 +49,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         .Build();
 
     // Initialize deserialized field.
-    ScaffolderConfig? scaffolderConfig = null;
+    ScaffolderConfig scaffolderConfig = null;
     
     try
     {
@@ -73,12 +75,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         Console.WriteLine(validationError);
         Environment.Exit(-1);
     }
-
-    foreach (KeyValuePair<string, Microservice> microservice in scaffolderConfig.Microservices)
-        microservice.Value.AssignedFrameworkPlugin?.GenerateFrameworkFiles(
-            workingDirectory,
-            scaffolderConfig.ProjectName,
-            microservice.Key, 
-            microservice.Value
-        );
+    
+    // Finally! Generate files declared in Template Tree. 
+    TemplateTreeGenerator.GenerateServicesFiles(scaffolderConfig, workingDirectory);
 });
