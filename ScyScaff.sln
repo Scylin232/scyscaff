@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScyScaff.Core", "ScyScaff.Core\ScyScaff.Core.csproj", "{B56E9C04-AFE5-46F7-9E06-B7CE30E8422A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B56E9C04-AFE5-46F7-9E06-B7CE30E8422A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B56E9C04-AFE5-46F7-9E06-B7CE30E8422A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B56E9C04-AFE5-46F7-9E06-B7CE30E8422A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B56E9C04-AFE5-46F7-9E06-B7CE30E8422A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
