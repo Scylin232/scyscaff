@@ -17,24 +17,33 @@ internal static class TemplateTreeGenerator
             string templateTreePath = service.Value.AssignedFrameworkPlugin!.GetTemplateTreePath();
             DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(templateTreePath);
             
-            GenerateFilesFromTree(rootTemplateTreeNode, new GenerationContext(config, service.Value, templateTreePath.Length, serviceDirectory.FullName, null));
+            GenerateFilesFromTree(rootTemplateTreeNode, new GenerationContext(config, service.Value, templateTreePath.Length, serviceDirectory.FullName));
         }
     }
-
+    
     private static void GenerateFilesFromTree(DirectoryTreeNode treeNode, GenerationContext context)
     {
         if (treeNode.Path.Contains("[...modelIterator...]"))
         {
+            IEnumerable<string> modelTemplateDirectories = Directory
+                .GetDirectories(Path.GetDirectoryName(treeNode.Path)!, "*.*", SearchOption.AllDirectories)
+                .ToList();
+            
             IEnumerable<string> modelTemplateFiles = Directory
-                .GetFiles(Path.GetDirectoryName(treeNode.Path)!)
-                .Where(modelFile => modelFile.EndsWith(".liquid"))
+                .GetFiles(Path.GetDirectoryName(treeNode.Path)!, "*.*", SearchOption.AllDirectories)
+                .Where(f => f.EndsWith(".liquid"))
                 .ToList();
 
             foreach (KeyValuePair<string, Dictionary<string, FieldTypeProvider>> model in context.Service.Models)
+            {
+                foreach (string modelTemplateDirectory in modelTemplateDirectories)
+                    GenerateTemplateFile(modelTemplateDirectory, context, model);
+                
                 foreach (string modelTemplateFile in modelTemplateFiles)
                     GenerateTemplateFile(modelTemplateFile, context, model);
+            }
         }
-
+        
         if (treeNode.Path.EndsWith(".liquid"))
         {
             bool isInIterableDirectory = Directory
@@ -45,15 +54,21 @@ internal static class TemplateTreeGenerator
                 GenerateTemplateFile(treeNode.Path, context);
         }
         
-        if (File.GetAttributes(treeNode.Path).HasFlag(FileAttributes.Directory))
+        if (File.GetAttributes(treeNode.Path).HasFlag(FileAttributes.Directory) && !treeNode.Path.Contains("{{"))
             Directory.CreateDirectory(Path.Combine(context.ServiceDirectory, treeNode.Path[context.TemplateTreePathLength..]));
-        
-        foreach (DirectoryTreeNode treeChild in treeNode.Children)
-            GenerateFilesFromTree(treeChild, context);
-    }
 
+        foreach (DirectoryTreeNode treeChild in treeNode.Children)
+        {
+            if (treeChild.Path.Contains("{{")) continue;
+            
+            GenerateFilesFromTree(treeChild, context);
+        }
+    }
+    
     private static void GenerateTemplateFile(string filePath, GenerationContext context, KeyValuePair<string, Dictionary<string, FieldTypeProvider>>? model = null)
     {
+        Console.WriteLine(filePath);
+        
         Template fileNameTemplate = Template.Parse(filePath);
         string? fileNameResult = fileNameTemplate.Render(new
         {
@@ -63,6 +78,15 @@ internal static class TemplateTreeGenerator
         });
         
         if (fileNameResult is null) return;
+
+        string newFilePath = Path.Combine(context.ServiceDirectory, fileNameResult[context.TemplateTreePathLength..]);
+
+        if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
+        {
+            Directory.CreateDirectory(newFilePath);
+            
+            return;
+        }
         
         Template fileContentTemplate = Template.Parse(File.ReadAllText(filePath));
         string? fileContentResult = fileContentTemplate.Render(new
@@ -73,8 +97,6 @@ internal static class TemplateTreeGenerator
         });
         
         if (fileContentResult is null) return;
-        
-        string newFilePath = Path.Combine(context.ServiceDirectory, fileNameResult[context.TemplateTreePathLength..]);
         
         // Trim ".liquid" from file name.
         File.WriteAllText(newFilePath[..^7], fileContentResult);

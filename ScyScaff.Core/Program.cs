@@ -16,7 +16,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     // Get working directory and filename from arguments, otherwise use default values.
     string workingDirectory = options.Path ?? Directory.GetCurrentDirectory();
     string specifiedFile = options.File ?? Constants.DefaultFilename;
-
+    
     // Combine desired directory and filename to get the file path.
     string filePath = Path.Combine(workingDirectory, specifiedFile);
     
@@ -31,7 +31,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     {
         "D:\\dev\\CSharp\\ScyScaffPlugin.AspNet\\bin\\Debug\\net8.0\\ScyScaffPlugin.AspNet.dll"
     };
-
+    
     // Load & Create plugins in memory, then store them in this variable.
     List<IFrameworkPlugin> loadedPlugins = pluginPaths.SelectMany(pluginPath =>
     {
@@ -42,14 +42,14 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     
     // Read desired file content.
     string fileContent = await File.ReadAllTextAsync(filePath);
-
+    
     // Initialize YAML deserializer.
     IDeserializer deserializer = new DeserializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .WithNamingConvention(PascalCaseNamingConvention.Instance)
         .Build();
-
+    
     // Initialize deserialized field.
-    ScaffolderConfig scaffolderConfig = null;
+    ScaffolderConfig? scaffolderConfig = null;
     
     try
     {
@@ -68,7 +68,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     
     // Ensure that config is fully valid.
     string? validationError = Validator.EnsureConfig(scaffolderConfig, loadedPlugins);
-
+    
     // Display an error message and exit program if config is not valid.
     if (validationError is not null)
     {

@@ -1,14 +1,14 @@
-﻿project_name: ScyCommerce
+﻿ProjectName: ScyCommerce
 
-auth: keycloak
-default_framework: aspnet
-default_database: postgresql
+Auth: keycloak
+DefaultFramework: aspnet
+DefaultDatabase: postgresql
 
-services:
+Services:
   Product:
-    models:
+    Models:
       Product:
-        price: decimal
-        description: string
+        Price: decimal
+        Description: string
       Supplier:
-        name: string
+        Name: string
