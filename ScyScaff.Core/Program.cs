@@ -77,5 +77,5 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     }
     
     // Finally! Generate files declared in Template Tree. 
-    TemplateTreeGenerator.GenerateServicesFiles(scaffolderConfig, workingDirectory);
+    await TemplateTreeGenerator.GenerateServicesFiles(scaffolderConfig, workingDirectory);
 });

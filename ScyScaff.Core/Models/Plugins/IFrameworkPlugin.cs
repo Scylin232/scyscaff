@@ -9,3 +9,9 @@ public interface IFrameworkPlugin
     
     string GetTemplateTreePath();
 }
+
+public interface IServiceGenerationEvents
+{
+    Task OnServiceGenerationStarted(DirectoryInfo serviceDirectory);
+    Task OnServiceGenerationEnded(DirectoryInfo serviceDirectory);
+}

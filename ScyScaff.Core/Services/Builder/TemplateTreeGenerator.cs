@@ -2,22 +2,31 @@
 using ScyScaff.Core.Enums.Parser;
 using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Builder;
+using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Utils.Builder;
 
 namespace ScyScaff.Core.Services.Builder;
 
 internal static class TemplateTreeGenerator
 {
-    public static void GenerateServicesFiles(ScaffolderConfig config, string workingDirectory)
+    public static async Task GenerateServicesFiles(ScaffolderConfig config, string workingDirectory)
     {
         foreach (KeyValuePair<string, ScaffolderService> service in config.Services)
         {
+            IServiceGenerationEvents? generationEvents = service.Value.AssignedFrameworkPlugin as IServiceGenerationEvents;
+
             DirectoryInfo serviceDirectory = Directory.CreateDirectory(Path.Combine(workingDirectory, $"{config.ProjectName}.{service.Key}"));
-            
+
+            if (generationEvents is not null)
+                await generationEvents.OnServiceGenerationStarted(serviceDirectory);
+
             string templateTreePath = service.Value.AssignedFrameworkPlugin!.GetTemplateTreePath();
             DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(templateTreePath);
             
             GenerateFilesFromTree(rootTemplateTreeNode, new GenerationContext(config, service.Value, templateTreePath.Length, serviceDirectory.FullName));
+
+            if (generationEvents is not null)
+                await generationEvents.OnServiceGenerationEnded(serviceDirectory);
         }
     }
     
@@ -67,7 +76,7 @@ internal static class TemplateTreeGenerator
     
     private static void GenerateTemplateFile(string filePath, GenerationContext context, KeyValuePair<string, Dictionary<string, FieldTypeProvider>>? model = null)
     {
-        Console.WriteLine(filePath);
+        // Console.WriteLine(filePath);
         
         Template fileNameTemplate = Template.Parse(filePath);
         string? fileNameResult = fileNameTemplate.Render(new

@@ -46,7 +46,7 @@ internal static class PluginLoader
         string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
         
         throw new ApplicationException(
-            $"Can't find any type which implements ICommand in {assembly} from {assembly.Location}.\n" +
+            $"Can't find any type which implements IFrameworkPlugin in {assembly} from {assembly.Location}.\n" +
             $"Available types: {availableTypes}");
     }
 }
