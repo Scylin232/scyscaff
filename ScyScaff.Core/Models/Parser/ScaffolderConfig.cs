@@ -1,6 +1,6 @@
 ﻿namespace ScyScaff.Core.Models.Parser;
 
-internal class ScaffolderConfig
+public class ScaffolderConfig
 {
     public string ProjectName { get; set; } = string.Empty;
     

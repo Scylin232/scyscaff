@@ -9,6 +9,7 @@ using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Builder;
 using ScyScaff.Core.Services.Parser;
 using ScyScaff.Core.Services.Plugins;
+using ScyScaff.Docker;
 
 // Parse given arguments and start callback with input data (Serves as application entry point).
 await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options =>
@@ -78,4 +79,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     
     // Finally! Generate files declared in Template Tree. 
     await TemplateTreeGenerator.GenerateServicesFiles(scaffolderConfig, workingDirectory);
+
+    // Generate docker-compose files from all services (if IDockerCompatible implemented).
+    DockerGenerator.GenerateComposeServices(scaffolderConfig, workingDirectory);
 });
