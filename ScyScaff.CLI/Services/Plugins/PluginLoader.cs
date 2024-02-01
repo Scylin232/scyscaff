@@ -1,12 +1,22 @@
 ﻿using System.Reflection;
-using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Utils.Plugins;
 
 namespace ScyScaff.Core.Services.Plugins;
 
-internal static class PluginLoader
+internal static class PluginLoader<T>
+    where T : class
 {
-    internal static Assembly LoadPlugin(string relativePath)
+    public static List<T> ConstructPlugins(string[] pluginsAbsolutePath)
+    {
+        return pluginsAbsolutePath.SelectMany(pluginPath =>
+        {
+            Assembly pluginAssembly = LoadPlugin(pluginPath);
+        
+            return CreatePlugin(pluginAssembly);
+        }).ToList();
+    }
+    
+    private static Assembly LoadPlugin(string relativePath)
     {
         string root = Path.GetFullPath(
             Path.Combine(
@@ -24,15 +34,15 @@ internal static class PluginLoader
         return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
     }
 
-    internal static IEnumerable<IFrameworkPlugin> CreatePlugin(Assembly assembly)
+    private static IEnumerable<T> CreatePlugin(Assembly assembly)
     {
         int count = 0;
         
         foreach (Type type in assembly.GetTypes())
         {
-            if (!typeof(IFrameworkPlugin).IsAssignableFrom(type)) continue;
+            if (!typeof(T).IsAssignableFrom(type)) continue;
             
-            IFrameworkPlugin? result = Activator.CreateInstance(type) as IFrameworkPlugin;
+            T? result = Activator.CreateInstance(type) as T;
             
             if (result == null) continue;
             
@@ -46,7 +56,7 @@ internal static class PluginLoader
         string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
         
         throw new ApplicationException(
-            $"Can't find any type which implements IFrameworkPlugin in {assembly} from {assembly.Location}.\n" +
+            $"Can't find any type which implements {nameof(T)} in {assembly} from {assembly.Location}.\n" +
             $"Available types: {availableTypes}");
     }
 }

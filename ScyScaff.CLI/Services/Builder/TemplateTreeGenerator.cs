@@ -1,39 +1,50 @@
 ﻿using Scriban;
 using ScyScaff.Core.Enums.Parser;
-using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Builder;
 using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Utils.Builder;
 
 namespace ScyScaff.Core.Services.Builder;
 
+// This class is responsible for generating files and directories based on a template tree.
 internal static class TemplateTreeGenerator
 {
-    public static async Task GenerateServicesFiles(ScaffolderConfig config, string workingDirectory)
+    // Generates files and directories based on the provided template tree.
+    public static async Task GenerateFromTree(TreeGenerationContext generationContext, string workingDirectory)
     {
-        foreach (KeyValuePair<string, ScaffolderService> service in config.Services)
-        {
-            IServiceGenerationEvents? generationEvents = service.Value.AssignedFrameworkPlugin as IServiceGenerationEvents;
+        // Create a directory for the entity based on project name and entity name.
+        DirectoryInfo entityDirectory = Directory.CreateDirectory(Path.Combine(workingDirectory, $"{generationContext.Config.ProjectName}.{generationContext.EntityName}"));
 
-            DirectoryInfo serviceDirectory = Directory.CreateDirectory(Path.Combine(workingDirectory, $"{config.ProjectName}.{service.Key}"));
+        // Check if the template plugin implements the ITemplateGenerationEvents interface.
+        ITemplateGenerationEvents? generationEvents = generationContext.TemplatePlugin as ITemplateGenerationEvents;
 
-            if (generationEvents is not null)
-                await generationEvents.OnServiceGenerationStarted(serviceDirectory);
+        // Invoke OnServiceGenerationStarted event if supported by the template plugin.
+        if (generationEvents is not null)
+            await generationEvents.OnServiceGenerationStarted(entityDirectory);
 
-            string templateTreePath = service.Value.AssignedFrameworkPlugin!.GetTemplateTreePath();
-            DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(templateTreePath);
-            
-            GenerateFilesFromTree(rootTemplateTreeNode, new GenerationContext(config, service.Value, templateTreePath.Length, serviceDirectory.FullName));
+        // Get the path to the template tree.
+        string templateTreePath = generationContext.TemplatePlugin.GetTemplateTreePath();
+        DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(templateTreePath);
 
-            if (generationEvents is not null)
-                await generationEvents.OnServiceGenerationEnded(serviceDirectory);
-        }
+        // Set some properties in the generation context for use in template processing.
+        generationContext.EntityDirectory = entityDirectory.FullName;
+        generationContext.TemplateTreePathLength = templateTreePath.Length;
+
+        // Recursively parse and generate files based on the template tree.
+        ParseServiceTree(rootTemplateTreeNode, generationContext);
+
+        // Invoke OnServiceGenerationEnded event if supported by the template plugin.
+        if (generationEvents is not null)
+            await generationEvents.OnServiceGenerationEnded(entityDirectory);
     }
-    
-    private static void GenerateFilesFromTree(DirectoryTreeNode treeNode, GenerationContext context)
+
+    // Recursively parses the template tree and generates files and directories accordingly.
+    private static void ParseServiceTree(DirectoryTreeNode treeNode, TreeGenerationContext context)
     {
+        // If the path contains a model iterator placeholder, generate files for each model.
         if (treeNode.Path.Contains("[...modelIterator...]"))
         {
+            // Get model template directories and files.
             IEnumerable<string> modelTemplateDirectories = Directory
                 .GetDirectories(Path.GetDirectoryName(treeNode.Path)!, "*.*", SearchOption.AllDirectories)
                 .ToList();
@@ -43,42 +54,54 @@ internal static class TemplateTreeGenerator
                 .Where(f => f.EndsWith(".liquid"))
                 .ToList();
 
-            foreach (KeyValuePair<string, Dictionary<string, FieldTypeProvider>> model in context.Service.Models)
+            // If a service is specified in the context, we will use its models, otherwise we will use the models of all services.
+            IEnumerable<KeyValuePair<string, Dictionary<string, FieldTypeProvider>>> models = 
+                context.Service?.Models ?? 
+                context.Config.Services.SelectMany(x => x.Value.Models);
+            
+            foreach (KeyValuePair<string, Dictionary<string, FieldTypeProvider>> model in models)
             {
                 foreach (string modelTemplateDirectory in modelTemplateDirectories)
-                    GenerateTemplateFile(modelTemplateDirectory, context, model);
-                
+                    GenerateServiceFile(modelTemplateDirectory, context, model);
+
                 foreach (string modelTemplateFile in modelTemplateFiles)
-                    GenerateTemplateFile(modelTemplateFile, context, model);
+                    GenerateServiceFile(modelTemplateFile, context, model);
             }
         }
-        
+
+        // If the path ends with ".liquid" and is not in an iterable directory, generate the file.
         if (treeNode.Path.EndsWith(".liquid"))
         {
             bool isInIterableDirectory = Directory
                 .GetFiles(Path.GetDirectoryName(treeNode.Path)!)
                 .Any(directory => directory.Contains("[..."));
-            
-            if (!isInIterableDirectory)
-                GenerateTemplateFile(treeNode.Path, context);
-        }
-        
-        if (File.GetAttributes(treeNode.Path).HasFlag(FileAttributes.Directory) && !treeNode.Path.Contains("{{"))
-            Directory.CreateDirectory(Path.Combine(context.ServiceDirectory, treeNode.Path[context.TemplateTreePathLength..]));
 
+            if (!isInIterableDirectory)
+                GenerateServiceFile(treeNode.Path, context);
+        }
+
+        // If the node represents a directory and does not have templated name, create it in the entity directory.
+        if (File.GetAttributes(treeNode.Path).HasFlag(FileAttributes.Directory) && !treeNode.Path.Contains("{{"))
+            Directory.CreateDirectory(Path.Combine(context.EntityDirectory, treeNode.Path[context.TemplateTreePathLength..]));
+
+        // Recursively process child nodes.
         foreach (DirectoryTreeNode treeChild in treeNode.Children)
         {
             if (treeChild.Path.Contains("{{")) continue;
-            
-            GenerateFilesFromTree(treeChild, context);
+
+            ParseServiceTree(treeChild, context);
         }
     }
-    
-    private static void GenerateTemplateFile(string filePath, GenerationContext context, KeyValuePair<string, Dictionary<string, FieldTypeProvider>>? model = null)
+
+    // Generates a service file based on the provided template file and context.
+    private static void GenerateServiceFile(string filePath, TreeGenerationContext context, KeyValuePair<string, Dictionary<string, FieldTypeProvider>>? model = default)
     {
-        // Console.WriteLine(filePath);
-        
-        Template fileNameTemplate = Template.Parse(filePath);
+        // Replace specific patterns to appropriate symbols.
+        // NOTE: Used for symbols that can't be used in filenames, but can be used in parser, like: . (Dot), | (Pipe), etc.
+        string parsedFilePath = FilePathParser.ReplacePatterns(filePath);
+
+        // Parse the file path as a Scriban template to get the actual file name.
+        Template fileNameTemplate = Template.Parse(parsedFilePath);
         string? fileNameResult = fileNameTemplate.Render(new
         {
             context.Config,
@@ -86,17 +109,20 @@ internal static class TemplateTreeGenerator
             Model = model
         });
         
+        // If the file name result is null, skip further processing.
         if (fileNameResult is null) return;
 
-        string newFilePath = Path.Combine(context.ServiceDirectory, fileNameResult[context.TemplateTreePathLength..]);
+        // Build the new file path in the entity directory.
+        string newFilePath = Path.Combine(context.EntityDirectory, fileNameResult[context.TemplateTreePathLength..]);
 
+        // If the original file path represents a directory, create it and stop the function.
         if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
         {
             Directory.CreateDirectory(newFilePath);
-            
             return;
         }
-        
+
+        // Parse the file content using Scriban.
         Template fileContentTemplate = Template.Parse(File.ReadAllText(filePath));
         string? fileContentResult = fileContentTemplate.Render(new
         {
@@ -104,10 +130,11 @@ internal static class TemplateTreeGenerator
             context.Service,
             Model = model
         });
-        
+
+        // If the file content result is null, skip further processing.
         if (fileContentResult is null) return;
-        
-        // Trim ".liquid" from file name.
+
+        // Write the processed content to the new file, trimming ".liquid" from the file name.
         File.WriteAllText(newFilePath[..^7], fileContentResult);
     }
 }

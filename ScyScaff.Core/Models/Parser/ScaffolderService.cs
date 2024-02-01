@@ -11,5 +11,5 @@ public class ScaffolderService
     public Dictionary<string, Dictionary<string, FieldTypeProvider>> Models { get; set; }
     
     // NOTE: This value is assigned at runtime (in Validator) so we can iterate over Services with reference to the appropriate plugin.
-    public IFrameworkPlugin? AssignedFrameworkPlugin { get; set; }
+    public IFrameworkTemplatePlugin? AssignedFrameworkPlugin { get; set; }
 }

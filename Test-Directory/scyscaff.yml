@@ -1,7 +1,8 @@
 ﻿ProjectName: ScyCommerce
 
-Auth: keycloak
-DefaultFramework: aspnet
+Auth: auth0
+Dashboard: nextjs-crud
+DefaultFramework: aspnet-ddd
 DefaultDatabase: postgresql
 
 Services:

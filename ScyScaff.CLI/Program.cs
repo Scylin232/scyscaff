@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using CommandLine;
+﻿using CommandLine;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using ScyScaff.Core.Models.CLI;
@@ -28,18 +27,19 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         Environment.Exit(-1);
     }
     
-    string[] pluginPaths =
+    string[] frameworkPluginPaths =
     {
         "D:\\dev\\CSharp\\ScyScaffPlugin.AspNet\\bin\\Debug\\net8.0\\ScyScaffPlugin.AspNet.dll"
     };
-    
-    // Load & Create plugins in memory, then store them in this variable.
-    List<IFrameworkPlugin> loadedPlugins = pluginPaths.SelectMany(pluginPath =>
+
+    string[] dashboardPluginPaths =
     {
-        Assembly pluginAssembly = PluginLoader.LoadPlugin(pluginPath);
-        
-        return PluginLoader.CreatePlugin(pluginAssembly);
-    }).ToList();
+        "D:\\dev\\CSharp\\ScyScaffPlugin.NextCRUDDashboard\\ScyScaffPlugin.NextCRUDDashboard\\bin\\Debug\\net8.0\\ScyScaffPlugin.NextCRUDDashboard.dll"
+    };
+    
+    // Load & Create plugins in memory, then store them in variables.
+    List<IFrameworkTemplatePlugin> loadedFrameworkPlugins = PluginLoader<IFrameworkTemplatePlugin>.ConstructPlugins(frameworkPluginPaths);
+    List<IDashboardTemplatePlugin> loadedDashboardPlugins = PluginLoader<IDashboardTemplatePlugin>.ConstructPlugins(dashboardPluginPaths);
     
     // Read desired file content.
     string fileContent = await File.ReadAllTextAsync(filePath);
@@ -68,7 +68,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     DefaultsSetter.SetDefaults(scaffolderConfig);
     
     // Ensure that config is fully valid.
-    string? validationError = Validator.EnsureConfig(scaffolderConfig, loadedPlugins);
+    string? validationError = Validator.EnsureConfig(scaffolderConfig, loadedFrameworkPlugins, loadedDashboardPlugins);
     
     // Display an error message and exit program if config is not valid.
     if (validationError is not null)
@@ -77,8 +77,29 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         Environment.Exit(-1);
     }
     
-    // Finally! Generate files declared in Template Tree. 
-    await TemplateTreeGenerator.GenerateServicesFiles(scaffolderConfig, workingDirectory);
+    // Finally! Generate services.
+    foreach (KeyValuePair<string, ScaffolderService> service in scaffolderConfig.Services)
+    {
+        TreeGenerationContext serviceGenerationContext = new TreeGenerationContext(
+            scaffolderConfig, 
+            service.Value, 
+            service.Value.AssignedFrameworkPlugin!, 
+            service.Key);
+    
+        await TemplateTreeGenerator.GenerateFromTree(serviceGenerationContext, workingDirectory);
+    }
+
+    // And generate dashboard! If was specified.
+    if (scaffolderConfig.AssignedDashboardPlugin is not null)
+    {
+        TreeGenerationContext dashboardGenerationContext = new TreeGenerationContext(
+            scaffolderConfig,
+            null,
+            scaffolderConfig.AssignedDashboardPlugin,
+            "Dashboard");
+
+        await TemplateTreeGenerator.GenerateFromTree(dashboardGenerationContext, workingDirectory);
+    }
 
     // Generate docker-compose files from all services (if IDockerCompatible implemented).
     DockerGenerator.GenerateComposeServices(scaffolderConfig, workingDirectory);
