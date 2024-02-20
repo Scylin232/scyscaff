@@ -7,6 +7,7 @@ public class ScaffolderService
 {
     public string? Framework { get; set; }
     public string? Database { get; set; }
+    public Dictionary<string, string> Flags { get; set; }
     
     public Dictionary<string, Dictionary<string, FieldTypeProvider>> Models { get; set; }
     

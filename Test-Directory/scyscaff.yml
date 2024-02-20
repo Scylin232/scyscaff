@@ -1,12 +1,14 @@
 ﻿ProjectName: ScyCommerce
 
 Auth: auth0
-Dashboard: nextjs-crud
+#Dashboard: nextjs-crud
 DefaultFramework: aspnet-ddd
 DefaultDatabase: postgresql
 
 Services:
   Product:
+    Flags:
+      Metrics: prometheus
     Models:
       Product:
         Price: decimal
