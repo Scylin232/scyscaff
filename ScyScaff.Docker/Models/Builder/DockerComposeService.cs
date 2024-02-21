@@ -1,7 +1,11 @@
-﻿namespace ScyScaff.Docker.Models.Builder;
+﻿using ScyScaff.Docker.Enums;
+
+namespace ScyScaff.Docker.Models.Builder;
 
 public class DockerComposeService
 {
+    public DockerComposeServiceType Type = DockerComposeServiceType.Unknown;
+    
     public string? Image { get; set; }
     public ComposeBuild? Build { get; set; }
     

@@ -106,6 +106,7 @@ internal static class TemplateTreeGenerator
         {
             context.Config,
             context.Service,
+            context.ComposeServices,
             Model = model
         });
         
@@ -128,6 +129,7 @@ internal static class TemplateTreeGenerator
         {
             context.Config,
             context.Service,
+            context.ComposeServices,
             Model = model
         });
 

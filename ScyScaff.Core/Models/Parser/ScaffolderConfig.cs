@@ -11,7 +11,9 @@ public class ScaffolderConfig
     
     public string DefaultFramework { get; set; } = string.Empty;
     public string DefaultDatabase { get; set; } = string.Empty;
-    
+    public Dictionary<string, string> DefaultFlags { get; set; } = new();
+
+    public List<string> GlobalWorkers { get; set; } = new();
     public Dictionary<string, ScaffolderService> Services { get; set; } = new();
     
     // NOTE: This value is assigned at runtime (in Validator) so we can reference to the appropriate plugin.

@@ -2,13 +2,18 @@
 
 Auth: auth0
 #Dashboard: nextjs-crud
+
 DefaultFramework: aspnet-ddd
 DefaultDatabase: postgresql
+DefaultFlags:
+  Metrics: prometheus
+  Test: 123
+
+GlobalWorkers:
+  - grafana-prometheus
 
 Services:
   Product:
-    Flags:
-      Metrics: prometheus
     Models:
       Product:
         Price: decimal

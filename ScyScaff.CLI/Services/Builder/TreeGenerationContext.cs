@@ -1,11 +1,14 @@
 ﻿using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
+using ScyScaff.Docker.Models.Builder;
 
 namespace ScyScaff.Core.Services.Builder;
 
-internal class TreeGenerationContext(ScaffolderConfig config, ScaffolderService? service,  ITemplatePlugin templatePlugin, string entityName)
+internal class TreeGenerationContext(ScaffolderConfig config, List<DockerComposeService> composeServices, ScaffolderService? service,  ITemplatePlugin templatePlugin, string entityName)
 {
     public ScaffolderConfig Config { get; } = config;
+    public List<DockerComposeService> ComposeServices { get; } = composeServices;
+    
     public ScaffolderService? Service { get; } = service;
  
     public ITemplatePlugin TemplatePlugin { get; } = templatePlugin;

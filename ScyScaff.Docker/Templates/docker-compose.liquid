@@ -20,9 +20,11 @@ services:
   {{~ end ~}}
 
 volumes:
-  {{~ for registered_volume in registered_volumes ~}}
+{{~ for registered_volume in registered_volumes ~}}
+{{~ if (registered_volume | string.starts_with "./") == false  ~}}
   {{ registered_volume }}:
-  {{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
 
 networks:
   {{ project_name | string.downcase }}-intranet:

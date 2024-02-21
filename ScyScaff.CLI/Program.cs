@@ -36,10 +36,16 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     {
         "D:\\dev\\CSharp\\ScyScaffPlugin.NextCRUDDashboard\\ScyScaffPlugin.NextCRUDDashboard\\bin\\Debug\\net8.0\\ScyScaffPlugin.NextCRUDDashboard.dll"
     };
+
+    string[] globalWorkerPluginPaths =
+    {
+        "D:\\dev\\CSharp\\ScyScaffPlugin.GrafanaPrometheusGlobalWorker\\bin\\Debug\\net8.0\\ScyScaffPlugin.GrafanaPrometheusGlobalWorker.dll",
+    };
     
     // Load & Create plugins in memory, then store them in variables.
     List<IFrameworkTemplatePlugin> loadedFrameworkPlugins = PluginLoader<IFrameworkTemplatePlugin>.ConstructPlugins(frameworkPluginPaths);
     List<IDashboardTemplatePlugin> loadedDashboardPlugins = PluginLoader<IDashboardTemplatePlugin>.ConstructPlugins(dashboardPluginPaths);
+    List<IGlobalWorkerPlugin> loadedGlobalWorkerPlugins = PluginLoader<IGlobalWorkerPlugin>.ConstructPlugins(globalWorkerPluginPaths);
     
     // Read desired file content.
     string fileContent = await File.ReadAllTextAsync(filePath);
@@ -68,7 +74,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     DefaultsSetter.SetDefaults(scaffolderConfig);
     
     // Ensure that config is fully valid.
-    string? validationError = Validator.EnsureConfig(scaffolderConfig, loadedFrameworkPlugins, loadedDashboardPlugins);
+    string? validationError = Validator.EnsureConfig(scaffolderConfig, loadedFrameworkPlugins, loadedDashboardPlugins, loadedGlobalWorkerPlugins);
     
     // Display an error message and exit program if config is not valid.
     if (validationError is not null)
@@ -77,30 +83,21 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         Environment.Exit(-1);
     }
     
+    // Initialize component generator.
+    ComponentGenerator componentGenerator = new(scaffolderConfig, workingDirectory);
+    
     // Finally! Generate services.
     foreach (KeyValuePair<string, ScaffolderService> service in scaffolderConfig.Services)
-    {
-        TreeGenerationContext serviceGenerationContext = new TreeGenerationContext(
-            scaffolderConfig, 
-            service.Value, 
-            service.Value.AssignedFrameworkPlugin!, 
-            service.Key);
-    
-        await TemplateTreeGenerator.GenerateFromTree(serviceGenerationContext, workingDirectory);
-    }
+        await componentGenerator.GenerateComponent(service.Value.AssignedFrameworkPlugin!, service.Key, service.Value);
 
-    // And generate dashboard! If was specified.
+    // And generate dashboard, if was specified.
     if (scaffolderConfig.AssignedDashboardPlugin is not null)
-    {
-        TreeGenerationContext dashboardGenerationContext = new TreeGenerationContext(
-            scaffolderConfig,
-            null,
-            scaffolderConfig.AssignedDashboardPlugin,
-            "Dashboard");
+        await componentGenerator.GenerateComponent(scaffolderConfig.AssignedDashboardPlugin, "Dashboard");
 
-        await TemplateTreeGenerator.GenerateFromTree(dashboardGenerationContext, workingDirectory);
-    }
+    // And generate global workers, if was specified.
+    foreach (IGlobalWorkerPlugin globalWorkerPlugin in loadedGlobalWorkerPlugins)
+        await componentGenerator.GenerateComponent(globalWorkerPlugin, "Global");
 
     // Generate docker-compose files from all services (if IDockerCompatible implemented).
-    DockerGenerator.GenerateComposeServices(scaffolderConfig, workingDirectory);
+    DockerGenerator.GenerateComposeServices(componentGenerator.ComponentComposeServices, scaffolderConfig.ProjectName, workingDirectory);
 });

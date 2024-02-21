@@ -6,7 +6,11 @@ namespace ScyScaff.Core.Services.Parser;
 
 internal static class Validator
 {
-    internal static string? EnsureConfig(ScaffolderConfig config, List<IFrameworkTemplatePlugin> loadedFrameworkPlugins, List<IDashboardTemplatePlugin> loadedDashboardPlugins)
+    internal static string? EnsureConfig(
+        ScaffolderConfig config,
+        List<IFrameworkTemplatePlugin> loadedFrameworkPlugins,
+        List<IDashboardTemplatePlugin> loadedDashboardPlugins,
+        List<IGlobalWorkerPlugin> loadedGlobalWorkerPlugins)
     {
         // Check if project name is not empty and contains latin letters only.
         if (config.ProjectName.Length <= 0 || !Regex.IsMatch(config.ProjectName, @"^[a-zA-Z]+$"))
@@ -23,7 +27,7 @@ internal static class Validator
             config.AssignedDashboardPlugin = foundDashboard;
         }
         
-        // Check if framework: exists, supports selected auth, supports selected database.
+        // Check if framework: exists, supports selected auth, supports selected database, supports specified flags.
         foreach (KeyValuePair<string, ScaffolderService> service in config.Services)
         {
             IFrameworkTemplatePlugin? foundFramework = loadedFrameworkPlugins.Find(plugin => plugin.FrameworkName == service.Value.Framework);
@@ -37,7 +41,19 @@ internal static class Validator
             if (!foundFramework.SupportedDatabases.Contains(service.Value.Database))
                 return $"Framework {foundFramework.FrameworkName} does not support {service.Value.Database} database.";
 
+            foreach (string flag in service.Value.Flags.Keys.Where(flag => !foundFramework.SupportedFlags.Contains(flag)))
+                Console.WriteLine($"Flag {flag} is not supported by {foundFramework.FrameworkName}, be aware.");
+            
             service.Value.AssignedFrameworkPlugin = foundFramework;
+        }
+
+        // Check if global worker: exists.
+        foreach (string globalWorkerName in config.GlobalWorkers)
+        {
+            IGlobalWorkerPlugin? foundGlobalWorker = loadedGlobalWorkerPlugins.Find(plugin => plugin.GlobalWorkerName == globalWorkerName);
+
+            if (foundGlobalWorker is null)
+                return $"Global worker {globalWorkerName} was not found.";
         }
         
         // Return null if no errors was found.
