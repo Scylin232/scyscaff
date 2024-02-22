@@ -7,13 +7,15 @@ DefaultFramework: aspnet-ddd
 DefaultDatabase: postgresql
 DefaultFlags:
   Metrics: prometheus
-  Test: 123
 
 GlobalWorkers:
   - grafana-prometheus
+  - elk-stack
 
 Services:
   Product:
+    Flags:
+      Logging: elk
     Models:
       Product:
         Price: decimal

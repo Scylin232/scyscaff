@@ -40,6 +40,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     string[] globalWorkerPluginPaths =
     {
         "D:\\dev\\CSharp\\ScyScaffPlugin.GrafanaPrometheusGlobalWorker\\bin\\Debug\\net8.0\\ScyScaffPlugin.GrafanaPrometheusGlobalWorker.dll",
+        "D:\\dev\\CSharp\\ScyScaffPlugin.ELK\\bin\\Debug\\net8.0\\ScyScaffPlugin.ELK.dll"
     };
     
     // Load & Create plugins in memory, then store them in variables.
@@ -95,7 +96,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         await componentGenerator.GenerateComponent(scaffolderConfig.AssignedDashboardPlugin, "Dashboard");
 
     // And generate global workers, if was specified.
-    foreach (IGlobalWorkerPlugin globalWorkerPlugin in loadedGlobalWorkerPlugins)
+    foreach (IGlobalWorkerPlugin globalWorkerPlugin in scaffolderConfig.AssignedGlobalWorkerPlugins)
         await componentGenerator.GenerateComponent(globalWorkerPlugin, "Global");
 
     // Generate docker-compose files from all services (if IDockerCompatible implemented).

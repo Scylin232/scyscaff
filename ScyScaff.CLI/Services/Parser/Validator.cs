@@ -54,6 +54,8 @@ internal static class Validator
 
             if (foundGlobalWorker is null)
                 return $"Global worker {globalWorkerName} was not found.";
+            
+            config.AssignedGlobalWorkerPlugins.Add(foundGlobalWorker);
         }
         
         // Return null if no errors was found.

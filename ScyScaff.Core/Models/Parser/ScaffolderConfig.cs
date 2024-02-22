@@ -16,6 +16,7 @@ public class ScaffolderConfig
     public List<string> GlobalWorkers { get; set; } = new();
     public Dictionary<string, ScaffolderService> Services { get; set; } = new();
     
-    // NOTE: This value is assigned at runtime (in Validator) so we can reference to the appropriate plugin.
+    // NOTE: These values are assigned at runtime (in Validator), so we can reference them later.
     public IDashboardTemplatePlugin? AssignedDashboardPlugin { get; set; }
+    public List<IGlobalWorkerPlugin> AssignedGlobalWorkerPlugins { get; set; } = new();
 }
