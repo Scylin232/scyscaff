@@ -33,26 +33,26 @@ internal static class Validator
             IFrameworkTemplatePlugin? foundFramework = loadedFrameworkPlugins.Find(plugin => plugin.FrameworkName == service.Value.Framework);
 
             if (foundFramework is null)
-                return $"Framework {service.Value.Framework} was not found.";
+                return $"Framework '{service.Value.Framework}' was not found.";
 
             if (!foundFramework.SupportedAuth.Contains(config.Auth))
-                return $"Framework {foundFramework.FrameworkName} does not support {config.Auth} auth.";
+                return $"Framework '{foundFramework.FrameworkName}' does not support '{config.Auth}' auth. Supported auth: {string.Join(", ", foundFramework.SupportedAuth)}";
 
             if (!foundFramework.SupportedDatabases.Contains(service.Value.Database))
-                return $"Framework {foundFramework.FrameworkName} does not support {service.Value.Database} database.";
+                return $"Framework '{foundFramework.FrameworkName}' does not support '{service.Value.Database}' database. Supported databases: {string.Join(", ", foundFramework.SupportedDatabases)}";
 
             foreach (KeyValuePair<string, string> flag in service.Value.Flags)
             {
                 if (!foundFramework.SupportedFlags.ContainsKey(flag.Key))
                 {
-                    Console.WriteLine($"Flag {flag.Key} is not supported by {foundFramework.FrameworkName}. It will be ignored, be aware.");
+                    Console.WriteLine($"Flag '{flag.Key}' is not supported by '{foundFramework.FrameworkName}'. It will be ignored, be aware. Supported flags: {string.Join(", ", foundFramework.SupportedFlags.Keys)}");
                     continue;
                 }
 
                 if (!foundFramework.SupportedFlags[flag.Key].Contains(flag.Value))
-                    Console.WriteLine($"Flag {flag.Key} value of {flag.Value} is not supported by {foundFramework.FrameworkName}. It will be ignored, be aware.");
+                    Console.WriteLine($"Flag '{flag.Key}' value of '{flag.Value}' is not supported by '{foundFramework.FrameworkName}'. It will be ignored, be aware. Supported flag values: {string.Join(", ", foundFramework.SupportedFlags[flag.Key])}");
             }
-            
+    
             service.Value.AssignedFrameworkPlugin = foundFramework;
         }
 
