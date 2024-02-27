@@ -3,11 +3,11 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using ScyScaff.Core.Models.CLI;
 using ScyScaff.Core.Models.Parser;
-using ScyScaff.Core.Utils.CLI;
 using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Builder;
 using ScyScaff.Core.Services.Parser;
 using ScyScaff.Core.Services.Plugins;
+using ScyScaff.Core.Utils.CLI;
 using ScyScaff.Docker;
 
 // Parse given arguments and start callback with input data (Serves as application entry point).

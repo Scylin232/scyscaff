@@ -1,7 +1,6 @@
 ﻿using Scriban;
-using ScyScaff.Core.Enums.Parser;
 using ScyScaff.Core.Models.Builder;
-using ScyScaff.Core.Models.Plugins;
+using ScyScaff.Core.Models.Events;
 using ScyScaff.Core.Utils.Builder;
 
 namespace ScyScaff.Core.Services.Builder;
@@ -55,11 +54,11 @@ internal static class TemplateTreeGenerator
                 .ToList();
 
             // If a service is specified in the context, we will use its models, otherwise we will use the models of all services.
-            IEnumerable<KeyValuePair<string, Dictionary<string, FieldTypeProvider>>> models = 
+            IEnumerable<KeyValuePair<string, Dictionary<string, string>>> models = 
                 context.Service?.Models ?? 
                 context.Config.Services.SelectMany(x => x.Value.Models);
             
-            foreach (KeyValuePair<string, Dictionary<string, FieldTypeProvider>> model in models)
+            foreach (KeyValuePair<string, Dictionary<string, string>> model in models)
             {
                 foreach (string modelTemplateDirectory in modelTemplateDirectories)
                     GenerateServiceFile(modelTemplateDirectory, context, model);
@@ -94,7 +93,7 @@ internal static class TemplateTreeGenerator
     }
 
     // Generates a service file based on the provided template file and context.
-    private static void GenerateServiceFile(string filePath, TreeGenerationContext context, KeyValuePair<string, Dictionary<string, FieldTypeProvider>>? model = default)
+    private static void GenerateServiceFile(string filePath, TreeGenerationContext context, KeyValuePair<string, Dictionary<string, string>>? model = default)
     {
         // Replace specific patterns to appropriate symbols.
         // NOTE: Used for symbols that can't be used in filenames, but can be used in parser, like: . (Dot), | (Pipe), etc.

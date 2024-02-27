@@ -6,16 +6,16 @@ Auth: auth0
 DefaultFramework: aspnet-ddd
 DefaultDatabase: postgresql
 DefaultFlags:
-  Metrics: prometheus
+  Logging: elk
 
 GlobalWorkers:
   - grafana-prometheus
-  - elk-stack
+  - elk
 
 Services:
   Product:
     Flags:
-      Logging: elk
+      Metrics: prometheus
     Models:
       Product:
         Price: decimal

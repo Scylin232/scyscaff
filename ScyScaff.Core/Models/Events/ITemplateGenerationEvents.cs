@@ -1,4 +1,4 @@
-﻿namespace ScyScaff.Core.Models.Plugins;
+﻿namespace ScyScaff.Core.Models.Events;
 
 public interface ITemplateGenerationEvents
 {

@@ -41,8 +41,17 @@ internal static class Validator
             if (!foundFramework.SupportedDatabases.Contains(service.Value.Database))
                 return $"Framework {foundFramework.FrameworkName} does not support {service.Value.Database} database.";
 
-            foreach (string flag in service.Value.Flags.Keys.Where(flag => !foundFramework.SupportedFlags.Contains(flag)))
-                Console.WriteLine($"Flag {flag} is not supported by {foundFramework.FrameworkName}, be aware.");
+            foreach (KeyValuePair<string, string> flag in service.Value.Flags)
+            {
+                if (!foundFramework.SupportedFlags.ContainsKey(flag.Key))
+                {
+                    Console.WriteLine($"Flag {flag.Key} is not supported by {foundFramework.FrameworkName}. It will be ignored, be aware.");
+                    continue;
+                }
+
+                if (!foundFramework.SupportedFlags[flag.Key].Contains(flag.Value))
+                    Console.WriteLine($"Flag {flag.Key} value of {flag.Value} is not supported by {foundFramework.FrameworkName}. It will be ignored, be aware.");
+            }
             
             service.Value.AssignedFrameworkPlugin = foundFramework;
         }

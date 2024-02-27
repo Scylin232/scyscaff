@@ -6,5 +6,5 @@ public interface IFrameworkTemplatePlugin : ITemplatePlugin
     
     string[] SupportedAuth { get; }
     string[] SupportedDatabases { get; }
-    string[] SupportedFlags { get; }
+    Dictionary<string, string[]> SupportedFlags { get; }
 }
