@@ -22,7 +22,7 @@ internal static class Validator
             IDashboardTemplatePlugin? foundDashboard = loadedDashboardPlugins.Find(plugin => plugin.DashboardName == config.Dashboard);
         
             if (foundDashboard is null)
-                return $"Dashboard {config.Dashboard} was not found.";
+                return $"Dashboard {config.Dashboard} was not found. Available dashboards: {string.Join(", ", loadedDashboardPlugins.Select(plugin => plugin.DashboardName))}";
 
             config.AssignedDashboardPlugin = foundDashboard;
         }
@@ -33,7 +33,7 @@ internal static class Validator
             IFrameworkTemplatePlugin? foundFramework = loadedFrameworkPlugins.Find(plugin => plugin.FrameworkName == service.Value.Framework);
 
             if (foundFramework is null)
-                return $"Framework '{service.Value.Framework}' was not found.";
+                return $"Framework '{service.Value.Framework}' was not found. Available frameworks: {string.Join(", ", loadedFrameworkPlugins.Select(plugin => plugin.FrameworkName))}";
 
             if (!foundFramework.SupportedAuth.Contains(config.Auth))
                 return $"Framework '{foundFramework.FrameworkName}' does not support '{config.Auth}' auth. Supported auth: {string.Join(", ", foundFramework.SupportedAuth)}";
@@ -62,7 +62,7 @@ internal static class Validator
             IGlobalWorkerPlugin? foundGlobalWorker = loadedGlobalWorkerPlugins.Find(plugin => plugin.GlobalWorkerName == globalWorkerName);
 
             if (foundGlobalWorker is null)
-                return $"Global worker {globalWorkerName} was not found.";
+                return $"Global worker {globalWorkerName} was not found. Available global workers: {string.Join(", ", loadedGlobalWorkerPlugins.Select(plugin => plugin.GlobalWorkerName))}";
             
             config.AssignedGlobalWorkerPlugins.Add(foundGlobalWorker);
         }
