@@ -1,4 +1,7 @@
-﻿using Scriban;
+﻿using System.Text;
+using Scriban;
+using DiffPlex.DiffBuilder;
+using DiffPlex.DiffBuilder.Model;
 using ScyScaff.Core.Models.Builder;
 using ScyScaff.Core.Models.Events;
 using ScyScaff.Core.Utils.Builder;
@@ -135,7 +138,48 @@ internal static class TemplateTreeGenerator
         // If the file content result is null, skip further processing.
         if (fileContentResult is null) return;
 
-        // Write the processed content to the new file, trimming ".liquid" from the file name.
-        File.WriteAllText(newFilePath[..^7], fileContentResult);
+        // Determine target file path, trimming ".liquid" from the file name.
+        string targetFilePath = newFilePath[..^7];
+        
+        // If the file exists, we should start the process of adding new lines rather than replacing them all.
+        if (File.Exists(targetFilePath))
+        {
+            // Check if add-mode is enabled, if not, stop the program.
+            if (context.IsAddModeEnabled is null or false)
+            {
+                Console.WriteLine("Warning! You executed the scaffolder in a directory where there are already files with the same name. Add the \"--add true\" option to continue. This will only add new lines and will not remove any code you've written, but you will likely need to rework lines you've already modified. The Docker-Compose file will be overwritten completely.");
+                Environment.Exit(-1);
+            }
+
+            // Call the function to add new lines if everything is good to go.
+            AddNewLines(targetFilePath, fileContentResult);
+
+            // Stop the function.
+            return;
+        }
+        
+        // Write the processed content to the new file.
+        File.WriteAllText(targetFilePath, fileContentResult);
+    }
+
+    // Only add new lines to the target file based on the content we generated.
+    private static void AddNewLines(string targetFilePath, string fileContentResult)
+    {
+        // Read the entire content of the file and compare it with the content we processed. If it is the same, we should exit the function.
+        string targetFileContent = File.ReadAllText(targetFilePath);
+
+        if (targetFileContent == fileContentResult) return;
+
+        // Create textual diff model between existing file content and new one.
+        DiffPaneModel diff = InlineDiffBuilder.Diff(fileContentResult, targetFileContent);
+        // Create a StringBuilder, so that we will write string-lines in a loop.
+        StringBuilder outputBuilder = new();
+
+        // Add a line to StringBuilder if it was: Deleted (Added by a new version, since it is taken as the original), unchanged, inserted (custom user code).
+        foreach (DiffPiece? line in diff.Lines.Where(line => line.Type == ChangeType.Deleted || line.Type == ChangeType.Unchanged || line.Type == ChangeType.Inserted))
+            outputBuilder.Append($"{line.Text}\n");
+
+        // Write StringBuilder to file.
+        File.WriteAllText(targetFilePath, outputBuilder.ToString());
     }
 }

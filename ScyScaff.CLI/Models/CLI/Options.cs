@@ -10,4 +10,7 @@ internal class Options
 
     [Option('f', "file", Required = false, HelpText = "Specify config file.")]
     public string? File { get; set; }
+    
+    [Option('a', "add", Required = false, HelpText = "Allows scaffolder to add new lines to exiting files.")]
+    public bool? Add { get; set; }
 }

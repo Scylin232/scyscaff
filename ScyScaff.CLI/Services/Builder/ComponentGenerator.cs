@@ -1,11 +1,12 @@
-﻿using ScyScaff.Core.Models.Parser;
+﻿using ScyScaff.Core.Models.CLI;
+using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Docker.Models.Builder;
 using ScyScaff.Docker.Models.Plugins;
 
 namespace ScyScaff.Core.Services.Builder;
 
-internal class ComponentGenerator(ScaffolderConfig config, string workingDirectory)
+internal class ComponentGenerator(ScaffolderConfig config, string workingDirectory, Options options)
 {
     internal readonly List<DockerComposeService> ComponentComposeServices = new();
     
@@ -18,7 +19,8 @@ internal class ComponentGenerator(ScaffolderConfig config, string workingDirecto
             ComponentComposeServices,
             service,
             plugin,
-            entityName);
+            entityName,
+            options.Add);
         
         await TemplateTreeGenerator.GenerateFromTree(generationContext, workingDirectory);
         
@@ -27,6 +29,7 @@ internal class ComponentGenerator(ScaffolderConfig config, string workingDirecto
         if (dockerCompatible is null) return;
 
         ComponentComposeServices.AddRange(dockerCompatible.GetComposeServices(config.ProjectName, entityName, _serviceIndex));
+        
         _serviceIndex++;
     }
 }

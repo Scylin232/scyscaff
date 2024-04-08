@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="CommandLineParser" Version="2.9.1" />
+      <PackageReference Include="DiffPlex" Version="1.7.2" />
       <PackageReference Include="Scriban" Version="5.9.1" />
       <PackageReference Include="YamlDotNet" Version="13.7.1" />
     </ItemGroup>

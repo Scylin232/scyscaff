@@ -2,7 +2,7 @@
 
 public static class FilePathParser
 {
-    private static Dictionary<string, string> _replacements = new()
+    private static readonly Dictionary<string, string> Replacements = new()
     {
         {"SCF_PIPE", "|"},
         {"SCF_DOT", "."}
@@ -10,12 +10,12 @@ public static class FilePathParser
 
     public static string ReplacePatterns(string filePath)
     {
-        if (!_replacements.Keys.Any(filePath.Contains))
+        if (!Replacements.Keys.Any(filePath.Contains))
             return filePath;
         
         string parsedFilePath = filePath;
 
-        foreach (KeyValuePair<string, string> replacement in _replacements)
+        foreach (KeyValuePair<string, string> replacement in Replacements)
             parsedFilePath = parsedFilePath.Replace(replacement.Key, replacement.Value);
         
         return parsedFilePath;

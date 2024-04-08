@@ -34,7 +34,8 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
 
     string[] dashboardPluginPaths =
     {
-        "D:\\dev\\CSharp\\ScyScaffPlugin.NextCRUDDashboard\\ScyScaffPlugin.NextCRUDDashboard\\bin\\Debug\\net8.0\\ScyScaffPlugin.NextCRUDDashboard.dll"
+        "D:\\dev\\CSharp\\ScyScaffPlugin.NextCRUDDashboard\\ScyScaffPlugin.NextCRUDDashboard\\bin\\Debug\\net8.0\\ScyScaffPlugin.NextCRUDDashboard.dll",
+        "D:\\dev\\CSharp\\ScyScaffPlugin.SvelteCrud\\ScyScaffPlugin.SvelteCrud\\bin\\Debug\\net8.0\\ScyScaffPlugin.SvelteCrud.dll"
     };
 
     string[] globalWorkerPluginPaths =
@@ -85,7 +86,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     }
     
     // Initialize component generator.
-    ComponentGenerator componentGenerator = new(scaffolderConfig, workingDirectory);
+    ComponentGenerator componentGenerator = new(scaffolderConfig, workingDirectory, options);
     
     // Finally! Generate services.
     foreach (KeyValuePair<string, ScaffolderService> service in scaffolderConfig.Services)

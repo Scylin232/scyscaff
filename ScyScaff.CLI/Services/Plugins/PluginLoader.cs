@@ -18,14 +18,7 @@ internal static class PluginLoader<T>
     
     private static Assembly LoadPlugin(string relativePath)
     {
-        string root = Path.GetFullPath(
-            Path.Combine(
-                Enumerable.Range(0, 5)
-                    .Aggregate(
-                        Path.GetDirectoryName(typeof(Program).Assembly.Location),
-                        (current, _) => Directory.GetParent(current).FullName)
-            )
-        );
+        string root = Path.GetFullPath(Path.Combine(Enumerable.Range(0, 5).Aggregate(Path.GetDirectoryName(typeof(Program).Assembly.Location), (current, _) => Directory.GetParent(current).FullName)));
         
         string pluginLocation = Path.GetFullPath(Path.Combine(root, relativePath.Replace('\\', Path.DirectorySeparatorChar)));
         

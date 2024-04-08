@@ -4,7 +4,7 @@ using ScyScaff.Docker.Models.Builder;
 
 namespace ScyScaff.Core.Services.Builder;
 
-internal class TreeGenerationContext(ScaffolderConfig config, List<DockerComposeService> composeServices, ScaffolderService? service,  ITemplatePlugin templatePlugin, string entityName)
+internal class TreeGenerationContext(ScaffolderConfig config, List<DockerComposeService> composeServices, ScaffolderService? service,  ITemplatePlugin templatePlugin, string entityName, bool? isAddModeEnabled)
 {
     public ScaffolderConfig Config { get; } = config;
     public List<DockerComposeService> ComposeServices { get; } = composeServices;
@@ -17,4 +17,6 @@ internal class TreeGenerationContext(ScaffolderConfig config, List<DockerCompose
 
     public string EntityDirectory { get; set; } = string.Empty;
     public int TemplateTreePathLength { get; set; }
+
+    public bool? IsAddModeEnabled { get; } = isAddModeEnabled;
 }
