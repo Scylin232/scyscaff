@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
+using ScyScaff.Core.Utils.Constants;
 
 namespace ScyScaff.Core.Services.Parser;
 
@@ -14,7 +15,7 @@ internal static class Validator
     {
         // Check if project name is not empty and contains latin letters only.
         if (config.ProjectName.Length <= 0 || !Regex.IsMatch(config.ProjectName, @"^[a-zA-Z]+$"))
-            return "Project name can't be empty and can contain latin letters only.";
+            return Messages.ProjectNameEmptyError;
 
         // Check if specified dashboard specified and exists.
         if (config.Dashboard is not null)
@@ -22,7 +23,7 @@ internal static class Validator
             IDashboardTemplatePlugin? foundDashboard = loadedDashboardPlugins.Find(plugin => plugin.DashboardName == config.Dashboard);
         
             if (foundDashboard is null)
-                return $"Dashboard {config.Dashboard} was not found. Available dashboards: {string.Join(", ", loadedDashboardPlugins.Select(plugin => plugin.DashboardName))}";
+                return Messages.DashboardMissing(loadedDashboardPlugins.Select(plugin => plugin.DashboardName), config.Dashboard);
 
             config.AssignedDashboardPlugin = foundDashboard;
         }
@@ -33,24 +34,24 @@ internal static class Validator
             IFrameworkTemplatePlugin? foundFramework = loadedFrameworkPlugins.Find(plugin => plugin.FrameworkName == service.Value.Framework);
 
             if (foundFramework is null)
-                return $"Framework '{service.Value.Framework}' was not found. Available frameworks: {string.Join(", ", loadedFrameworkPlugins.Select(plugin => plugin.FrameworkName))}";
+                return Messages.FrameworkMissing(loadedFrameworkPlugins.Select(plugin => plugin.FrameworkName), service.Value.Framework!);
 
             if (!foundFramework.SupportedAuth.Contains(config.Auth))
-                return $"Framework '{foundFramework.FrameworkName}' does not support '{config.Auth}' auth. Supported auth: {string.Join(", ", foundFramework.SupportedAuth)}";
+                return Messages.FrameworkAuthMissing(foundFramework.SupportedAuth, config.Auth, foundFramework.FrameworkName);
 
             if (!foundFramework.SupportedDatabases.Contains(service.Value.Database))
-                return $"Framework '{foundFramework.FrameworkName}' does not support '{service.Value.Database}' database. Supported databases: {string.Join(", ", foundFramework.SupportedDatabases)}";
+                return Messages.FrameworkDatabaseMissing(foundFramework.SupportedDatabases, service.Value.Database!, foundFramework.FrameworkName);
 
             foreach (KeyValuePair<string, string> flag in service.Value.Flags)
             {
                 if (!foundFramework.SupportedFlags.ContainsKey(flag.Key))
                 {
-                    Console.WriteLine($"Flag '{flag.Key}' is not supported by '{foundFramework.FrameworkName}'. It will be ignored, be aware. Supported flags: {string.Join(", ", foundFramework.SupportedFlags.Keys)}");
+                    Console.WriteLine(Messages.FrameworkFlagKeyNotSupported(foundFramework.SupportedFlags.Keys, flag.Key, foundFramework.FrameworkName));
                     continue;
                 }
 
                 if (!foundFramework.SupportedFlags[flag.Key].Contains(flag.Value))
-                    Console.WriteLine($"Flag '{flag.Key}' value of '{flag.Value}' is not supported by '{foundFramework.FrameworkName}'. It will be ignored, be aware. Supported flag values: {string.Join(", ", foundFramework.SupportedFlags[flag.Key])}");
+                    Console.WriteLine(Messages.FrameworkFlagValueNotSupported(foundFramework.SupportedFlags[flag.Key], flag.Key, flag.Value, foundFramework.FrameworkName));
             }
     
             service.Value.AssignedFrameworkPlugin = foundFramework;
@@ -62,7 +63,7 @@ internal static class Validator
             IGlobalWorkerPlugin? foundGlobalWorker = loadedGlobalWorkerPlugins.Find(plugin => plugin.GlobalWorkerName == globalWorkerName);
 
             if (foundGlobalWorker is null)
-                return $"Global worker {globalWorkerName} was not found. Available global workers: {string.Join(", ", loadedGlobalWorkerPlugins.Select(plugin => plugin.GlobalWorkerName))}";
+                return Messages.GlobalWorkerMissing(loadedGlobalWorkerPlugins.Select(plugin => plugin.GlobalWorkerName), globalWorkerName);
             
             config.AssignedGlobalWorkerPlugins.Add(foundGlobalWorker);
         }

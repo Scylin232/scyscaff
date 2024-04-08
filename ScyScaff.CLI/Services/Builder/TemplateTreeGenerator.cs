@@ -5,6 +5,7 @@ using DiffPlex.DiffBuilder.Model;
 using ScyScaff.Core.Models.Builder;
 using ScyScaff.Core.Models.Events;
 using ScyScaff.Core.Utils.Builder;
+using ScyScaff.Core.Utils.Constants;
 
 namespace ScyScaff.Core.Services.Builder;
 
@@ -147,7 +148,7 @@ internal static class TemplateTreeGenerator
             // Check if add-mode is enabled, if not, stop the program.
             if (context.IsAddModeEnabled is null or false)
             {
-                Console.WriteLine("Warning! You executed the scaffolder in a directory where there are already files with the same name. Add the \"--add true\" option to continue. This will only add new lines and will not remove any code you've written, but you will likely need to rework lines you've already modified. The Docker-Compose file will be overwritten completely.");
+                Console.WriteLine(Messages.AddModeWarning);
                 Environment.Exit(-1);
             }
 

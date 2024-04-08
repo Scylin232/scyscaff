@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using ScyScaff.Core.Utils.Constants;
 using ScyScaff.Core.Utils.Plugins;
 
 namespace ScyScaff.Core.Services.Plugins;
@@ -48,8 +49,6 @@ internal static class PluginLoader<T>
         
         string availableTypes = string.Join(",", assembly.GetTypes().Select(t => t.FullName));
         
-        throw new ApplicationException(
-            $"Can't find any type which implements {nameof(T)} in {assembly} from {assembly.Location}.\n" +
-            $"Available types: {availableTypes}");
+        throw new ApplicationException(Messages.PluginImplementationNotFound(nameof(T), assembly.ToString(), assembly.Location, availableTypes));
     }
 }

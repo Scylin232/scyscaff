@@ -7,7 +7,7 @@ using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Builder;
 using ScyScaff.Core.Services.Parser;
 using ScyScaff.Core.Services.Plugins;
-using ScyScaff.Core.Utils.CLI;
+using ScyScaff.Core.Utils.Constants;
 using ScyScaff.Docker;
 
 // Parse given arguments and start callback with input data (Serves as application entry point).
@@ -15,7 +15,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
 {
     // Get working directory and filename from arguments, otherwise use default values.
     string workingDirectory = options.Path ?? Directory.GetCurrentDirectory();
-    string specifiedFile = options.File ?? Constants.DefaultFilename;
+    string specifiedFile = options.File ?? Defaults.DefaultFilename;
     
     // Combine desired directory and filename to get the file path.
     string filePath = Path.Combine(workingDirectory, specifiedFile);
@@ -23,7 +23,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     // Check if specified filepath exists.
     if (!File.Exists(filePath))
     {
-        Console.WriteLine($"Could not find file {specifiedFile} at {workingDirectory}");
+        Console.WriteLine(Messages.FileNotFoundInWorkingDirectory(specifiedFile, workingDirectory));
         Environment.Exit(-1);
     }
     
