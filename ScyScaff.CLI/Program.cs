@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System.IO.Abstractions;
+using CommandLine;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using ScyScaff.Core.Models.CLI;
@@ -13,6 +14,9 @@ using ScyScaff.Docker;
 // Parse given arguments and start callback with input data (Serves as application entry point).
 await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options =>
 {
+    // Initialize services.
+    IFileSystem fileSystem = new FileSystem();
+    
     // Get working directory and filename from arguments, otherwise use default values.
     string workingDirectory = options.Path ?? Directory.GetCurrentDirectory();
     string specifiedFile = options.File ?? Defaults.DefaultFilename;
@@ -101,5 +105,5 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         await componentGenerator.GenerateComponent(globalWorkerPlugin, "Global");
 
     // Generate docker-compose files from all services (if IDockerCompatible implemented).
-    DockerGenerator.GenerateComposeServices(componentGenerator.ComponentComposeServices, scaffolderConfig.ProjectName, workingDirectory);
+    DockerGenerator.GenerateComposeServices(fileSystem, componentGenerator.ComponentComposeServices, scaffolderConfig.ProjectName, workingDirectory);
 });

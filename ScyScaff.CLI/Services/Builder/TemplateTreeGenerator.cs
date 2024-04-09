@@ -88,12 +88,8 @@ internal static class TemplateTreeGenerator
             Directory.CreateDirectory(Path.Combine(context.EntityDirectory, treeNode.Path[context.TemplateTreePathLength..]));
 
         // Recursively process child nodes.
-        foreach (DirectoryTreeNode treeChild in treeNode.Children)
-        {
-            if (treeChild.Path.Contains("{{")) continue;
-
+        foreach (DirectoryTreeNode treeChild in treeNode.Children.Where(treeChild => !treeChild.Path.Contains("{{")))
             ParseServiceTree(treeChild, context);
-        }
     }
 
     // Generates a service file based on the provided template file and context.

@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScyScaff.Docker", "ScyScaff
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScyScaff.Core", "ScyScaff.Core\ScyScaff.Core.csproj", "{16F93D18-EE3E-411B-AED9-DEEBF3007C00}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScyScaff.Tests", "ScyScaff.Tests\ScyScaff.Tests.csproj", "{67680FE8-0FED-4047-B8D4-BDDFD2212457}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{16F93D18-EE3E-411B-AED9-DEEBF3007C00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16F93D18-EE3E-411B-AED9-DEEBF3007C00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16F93D18-EE3E-411B-AED9-DEEBF3007C00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67680FE8-0FED-4047-B8D4-BDDFD2212457}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67680FE8-0FED-4047-B8D4-BDDFD2212457}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67680FE8-0FED-4047-B8D4-BDDFD2212457}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67680FE8-0FED-4047-B8D4-BDDFD2212457}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

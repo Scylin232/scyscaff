@@ -1,0 +1,25 @@
+﻿services:
+  TestContainer:
+    image: TestImage
+    build:
+      context: TestContext
+      dockerfile: TestDockerFile
+    container_name: TestContainer
+    depends_on:
+      TestDependencyA:
+        condition: TestConditionA
+    volumes:
+      - TestVolumeA:TestVolumeB
+    ports:
+      - "100:200"
+    environment:
+      TestVariableA: "TestVariableB"
+    networks:
+      - unittest-intranet
+
+volumes:
+  TestVolumeA:
+
+networks:
+  unittest-intranet:
+    driver: bridge
