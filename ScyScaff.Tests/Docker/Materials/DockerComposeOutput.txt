@@ -16,6 +16,7 @@
       TestVariableA: "TestVariableB"
     networks:
       - unittest-intranet
+    TestExtraProperties
 
 volumes:
   TestVolumeA:

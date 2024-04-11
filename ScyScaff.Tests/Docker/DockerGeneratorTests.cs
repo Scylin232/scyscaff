@@ -8,7 +8,7 @@ namespace ScyScaff.Tests.Docker;
 public class DockerGeneratorTests
 {
     [Fact]
-    public void GenerateComposeServices_Test()
+    public void GenerateComposeServices_SuccessTemplateGeneration_Test()
     {
         // Arrange
         string templateContent = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "./Templates/docker-compose.liquid"));

@@ -3,7 +3,7 @@
 namespace ScyScaff.Core.Models.CLI;
 
 // CLI arguments (options) model.
-internal class Options
+public class Options
 {
     [Option('p', "path", Required = false, HelpText = "Specify working directory.")]
     public string? Path { get; set; }

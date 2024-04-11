@@ -1,11 +1,16 @@
-﻿using ScyScaff.Core.Models.Parser;
+﻿using System.IO.Abstractions;
+using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
+using ScyScaff.Core.Models.Application;
 using ScyScaff.Docker.Models.Builder;
 
 namespace ScyScaff.Core.Services.Builder;
 
-internal class TreeGenerationContext(ScaffolderConfig config, List<DockerComposeService> composeServices, ScaffolderService? service,  ITemplatePlugin templatePlugin, string entityName, bool? isAddModeEnabled)
+public class TreeGenerationContext(IFileSystem fileSystem, IApplicationExit applicationExit, ScaffolderConfig config, List<DockerComposeService> composeServices, ScaffolderService? service, ITemplatePlugin templatePlugin, string entityName, bool? isAddModeEnabled)
 {
+    public IFileSystem FileSystem { get; } = fileSystem;
+    public IApplicationExit ApplicationExit { get; } = applicationExit;
+    
     public ScaffolderConfig Config { get; } = config;
     public List<DockerComposeService> ComposeServices { get; } = composeServices;
     

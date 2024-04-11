@@ -5,9 +5,9 @@ using ScyScaff.Core.Utils.Constants;
 
 namespace ScyScaff.Core.Services.Parser;
 
-internal static class Validator
+public static class Validator
 {
-    internal static string? EnsureConfig(
+    public static string? EnsureConfig(
         ScaffolderConfig config,
         List<IFrameworkTemplatePlugin> loadedFrameworkPlugins,
         List<IDashboardTemplatePlugin> loadedDashboardPlugins,
@@ -45,13 +45,10 @@ internal static class Validator
             foreach (KeyValuePair<string, string> flag in service.Value.Flags)
             {
                 if (!foundFramework.SupportedFlags.ContainsKey(flag.Key))
-                {
-                    Console.WriteLine(Messages.FrameworkFlagKeyNotSupported(foundFramework.SupportedFlags.Keys, flag.Key, foundFramework.FrameworkName));
-                    continue;
-                }
+                    return Messages.FrameworkFlagKeyNotSupported(foundFramework.SupportedFlags.Keys, flag.Key, foundFramework.FrameworkName);
 
                 if (!foundFramework.SupportedFlags[flag.Key].Contains(flag.Value))
-                    Console.WriteLine(Messages.FrameworkFlagValueNotSupported(foundFramework.SupportedFlags[flag.Key], flag.Key, flag.Value, foundFramework.FrameworkName));
+                    return Messages.FrameworkFlagValueNotSupported(foundFramework.SupportedFlags[flag.Key], flag.Key, flag.Value, foundFramework.FrameworkName);
             }
     
             service.Value.AssignedFrameworkPlugin = foundFramework;

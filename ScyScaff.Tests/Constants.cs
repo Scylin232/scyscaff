@@ -3,5 +3,6 @@
 internal static class Constants
 {
     public const string ProjectName = "UnitTest";
-    public const string WorkingDirectory = @"C:\Projects\TestProject";
+    public const string WorkingDirectory = "./TestProject/";
+    public const string TemplateTreePath = "./ExampleTemplateTree/";
 }

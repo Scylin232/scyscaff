@@ -31,6 +31,14 @@
         <Content Include="./Docker/Materials/**/*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+
+        <Content Include="./Builder/Materials/**/*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Builder\Materials\DirectoryTreeTest\" />
     </ItemGroup>
 
 </Project>

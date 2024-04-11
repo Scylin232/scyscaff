@@ -5,10 +5,12 @@ using YamlDotNet.Serialization.NamingConventions;
 using ScyScaff.Core.Models.CLI;
 using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
+using ScyScaff.Core.Models.Application;
 using ScyScaff.Core.Services.Builder;
 using ScyScaff.Core.Services.Parser;
 using ScyScaff.Core.Services.Plugins;
 using ScyScaff.Core.Utils.Constants;
+using ScyScaff.Core.Utils.Plugins;
 using ScyScaff.Docker;
 
 // Parse given arguments and start callback with input data (Serves as application entry point).
@@ -16,6 +18,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
 {
     // Initialize services.
     IFileSystem fileSystem = new FileSystem();
+    IApplicationExit applicationExit = new ApplicationExit();
     
     // Get working directory and filename from arguments, otherwise use default values.
     string workingDirectory = options.Path ?? Directory.GetCurrentDirectory();
@@ -90,7 +93,7 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     }
     
     // Initialize component generator.
-    ComponentGenerator componentGenerator = new(scaffolderConfig, workingDirectory, options);
+    ComponentGenerator componentGenerator = new(fileSystem, applicationExit, scaffolderConfig, workingDirectory, options);
     
     // Finally! Generate services.
     foreach (KeyValuePair<string, ScaffolderService> service in scaffolderConfig.Services)
@@ -105,5 +108,5 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
         await componentGenerator.GenerateComponent(globalWorkerPlugin, "Global");
 
     // Generate docker-compose files from all services (if IDockerCompatible implemented).
-    DockerGenerator.GenerateComposeServices(fileSystem, componentGenerator.ComponentComposeServices, scaffolderConfig.ProjectName, workingDirectory);
+    DockerGenerator.GenerateComposeServices(fileSystem, componentGenerator.ComposeServices, scaffolderConfig.ProjectName, workingDirectory);
 });

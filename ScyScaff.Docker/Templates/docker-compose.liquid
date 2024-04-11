@@ -17,6 +17,7 @@ services:
       {{ env.key }}: "{{ env.value }}"{{ end }}{{ end }}
     networks:
       - {{ project_name | string.downcase }}-intranet
+    {{ service.extra_properties }}
   {{~ end ~}}
 
 volumes:

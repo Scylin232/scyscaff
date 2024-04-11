@@ -1,23 +1,22 @@
-﻿using ScyScaff.Core.Models.Builder;
+﻿using System.IO.Abstractions;
+using ScyScaff.Core.Models.Builder;
 
 namespace ScyScaff.Core.Utils.Builder;
 
 public static class DirectoryTree
 {
-    public static DirectoryTreeNode GetDirectoryTree(string directoryPath)
+    public static DirectoryTreeNode GetDirectoryTree(IFileSystem fileSystem, string directoryPath)
     {
-        var root = new DirectoryTreeNode(directoryPath);
+        DirectoryTreeNode root = new(directoryPath);
         
-        foreach (string subDirectory in Directory.GetDirectories(directoryPath))
+        foreach (string subDirectory in fileSystem.Directory.GetDirectories(directoryPath))
         {
-            DirectoryTreeNode subDirectoryNode = GetDirectoryTree(subDirectory);
+            DirectoryTreeNode subDirectoryNode = GetDirectoryTree(fileSystem, subDirectory);
             root.AddChild(subDirectoryNode);
         }
         
-        foreach (string file in Directory.GetFiles(directoryPath))
-        {
+        foreach (string file in fileSystem.Directory.GetFiles(directoryPath))
             root.AddChild(new DirectoryTreeNode(file));
-        }
         
         return root;
     }

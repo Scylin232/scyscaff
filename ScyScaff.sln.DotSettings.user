@@ -1,6 +1,8 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e1b1748a_002Dc7bc_002D4543_002Db6b8_002D344ee5b4d166/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GenerateComposeServicesTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::67680FE8-0FED-4047-B8D4-BDDFD2212457::net8.0::ScyScaff.Tests.Docker.DockerGeneratorTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\timyr\AppData\Local\JetBrains\Rider2023.2\resharper-host\temp\Rider\vAny\CoverageData\_ScyScaff.710416680\Snapshot\snapshot.utdcvr</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=322abd70_002D207a_002D41fb_002Da09d_002Da667527ed674/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;ScyScaff.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Project Location="D:\dev\CSharp\ScyScaff\ScyScaff.Tests" Presentation="&amp;lt;ScyScaff.Tests&amp;gt;" /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	
+	
+	</wpf:ResourceDictionary>

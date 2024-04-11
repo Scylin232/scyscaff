@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO.Abstractions;
+using System.Text;
 using Scriban;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
@@ -10,13 +11,13 @@ using ScyScaff.Core.Utils.Constants;
 namespace ScyScaff.Core.Services.Builder;
 
 // This class is responsible for generating files and directories based on a template tree.
-internal static class TemplateTreeGenerator
+public static class TemplateTreeGenerator
 {
     // Generates files and directories based on the provided template tree.
     public static async Task GenerateFromTree(TreeGenerationContext generationContext, string workingDirectory)
     {
         // Create a directory for the entity based on project name and entity name.
-        DirectoryInfo entityDirectory = Directory.CreateDirectory(Path.Combine(workingDirectory, $"{generationContext.Config.ProjectName}.{generationContext.EntityName}"));
+        IDirectoryInfo entityDirectory = generationContext.FileSystem.Directory.CreateDirectory(generationContext.FileSystem.Path.Combine(workingDirectory, $"{generationContext.Config.ProjectName}.{generationContext.EntityName}"));
 
         // Check if the template plugin implements the ITemplateGenerationEvents interface.
         ITemplateGenerationEvents? generationEvents = generationContext.TemplatePlugin as ITemplateGenerationEvents;
@@ -27,7 +28,7 @@ internal static class TemplateTreeGenerator
 
         // Get the path to the template tree.
         string templateTreePath = generationContext.TemplatePlugin.GetTemplateTreePath();
-        DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(templateTreePath);
+        DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(generationContext.FileSystem, templateTreePath);
 
         // Set some properties in the generation context for use in template processing.
         generationContext.EntityDirectory = entityDirectory.FullName;
@@ -48,12 +49,12 @@ internal static class TemplateTreeGenerator
         if (treeNode.Path.Contains("[...modelIterator...]"))
         {
             // Get model template directories and files.
-            IEnumerable<string> modelTemplateDirectories = Directory
-                .GetDirectories(Path.GetDirectoryName(treeNode.Path)!, "*.*", SearchOption.AllDirectories)
+            IEnumerable<string> modelTemplateDirectories = context.FileSystem.Directory
+                .GetDirectories(context.FileSystem.Path.GetDirectoryName(treeNode.Path)!, "*.*", SearchOption.AllDirectories)
                 .ToList();
             
-            IEnumerable<string> modelTemplateFiles = Directory
-                .GetFiles(Path.GetDirectoryName(treeNode.Path)!, "*.*", SearchOption.AllDirectories)
+            IEnumerable<string> modelTemplateFiles = context.FileSystem.Directory
+                .GetFiles(context.FileSystem.Path.GetDirectoryName(treeNode.Path)!, "*.*", SearchOption.AllDirectories)
                 .Where(f => f.EndsWith(".liquid"))
                 .ToList();
 
@@ -75,8 +76,8 @@ internal static class TemplateTreeGenerator
         // If the path ends with ".liquid" and is not in an iterable directory, generate the file.
         if (treeNode.Path.EndsWith(".liquid"))
         {
-            bool isInIterableDirectory = Directory
-                .GetFiles(Path.GetDirectoryName(treeNode.Path)!)
+            bool isInIterableDirectory = context.FileSystem.Directory
+                .GetFiles(context.FileSystem.Path.GetDirectoryName(treeNode.Path)!)
                 .Any(directory => directory.Contains("[..."));
 
             if (!isInIterableDirectory)
@@ -84,8 +85,8 @@ internal static class TemplateTreeGenerator
         }
 
         // If the node represents a directory and does not have templated name, create it in the entity directory.
-        if (File.GetAttributes(treeNode.Path).HasFlag(FileAttributes.Directory) && !treeNode.Path.Contains("{{"))
-            Directory.CreateDirectory(Path.Combine(context.EntityDirectory, treeNode.Path[context.TemplateTreePathLength..]));
+        if (context.FileSystem.File.GetAttributes(treeNode.Path).HasFlag(FileAttributes.Directory) && !treeNode.Path.Contains("{{"))
+            context.FileSystem.Directory.CreateDirectory(context.FileSystem.Path.Combine(context.EntityDirectory, treeNode.Path[context.TemplateTreePathLength..]));
 
         // Recursively process child nodes.
         foreach (DirectoryTreeNode treeChild in treeNode.Children.Where(treeChild => !treeChild.Path.Contains("{{")))
@@ -101,7 +102,7 @@ internal static class TemplateTreeGenerator
 
         // Parse the file path as a Scriban template to get the actual file name.
         Template fileNameTemplate = Template.Parse(parsedFilePath);
-        string? fileNameResult = fileNameTemplate.Render(new
+        string fileNameResult = fileNameTemplate.Render(new
         {
             context.Config,
             context.Service,
@@ -109,61 +110,58 @@ internal static class TemplateTreeGenerator
             Model = model
         });
         
-        // If the file name result is null, skip further processing.
-        if (fileNameResult is null) return;
-
         // Build the new file path in the entity directory.
-        string newFilePath = Path.Combine(context.EntityDirectory, fileNameResult[context.TemplateTreePathLength..]);
+        string newFilePath = context.FileSystem.Path.Combine(context.EntityDirectory, fileNameResult[context.TemplateTreePathLength..]);
 
         // If the original file path represents a directory, create it and stop the function.
-        if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
+        if (context.FileSystem.File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
         {
-            Directory.CreateDirectory(newFilePath);
+            context.FileSystem.Directory.CreateDirectory(newFilePath);
             return;
         }
 
         // Parse the file content using Scriban.
-        Template fileContentTemplate = Template.Parse(File.ReadAllText(filePath));
-        string? fileContentResult = fileContentTemplate.Render(new
+        Template fileContentTemplate = Template.Parse(context.FileSystem.File.ReadAllText(filePath));
+        string fileContentResult = fileContentTemplate.Render(new
         {
             context.Config,
             context.Service,
             context.ComposeServices,
             Model = model
         });
-
-        // If the file content result is null, skip further processing.
-        if (fileContentResult is null) return;
 
         // Determine target file path, trimming ".liquid" from the file name.
         string targetFilePath = newFilePath[..^7];
         
         // If the file exists, we should start the process of adding new lines rather than replacing them all.
-        if (File.Exists(targetFilePath))
+        if (context.FileSystem.File.Exists(targetFilePath))
         {
             // Check if add-mode is enabled, if not, stop the program.
             if (context.IsAddModeEnabled is null or false)
             {
                 Console.WriteLine(Messages.AddModeWarning);
-                Environment.Exit(-1);
+                context.ApplicationExit.ExitErrorCodeMinusOne();
+                
+                // Stop the function.
+                return;
             }
 
             // Call the function to add new lines if everything is good to go.
-            AddNewLines(targetFilePath, fileContentResult);
+            AddNewLines(context.FileSystem, targetFilePath, fileContentResult);
 
             // Stop the function.
             return;
         }
         
         // Write the processed content to the new file.
-        File.WriteAllText(targetFilePath, fileContentResult);
+        context.FileSystem.File.WriteAllText(targetFilePath, fileContentResult);
     }
 
     // Only add new lines to the target file based on the content we generated.
-    private static void AddNewLines(string targetFilePath, string fileContentResult)
+    private static void AddNewLines(IFileSystem fileSystem, string targetFilePath, string fileContentResult)
     {
         // Read the entire content of the file and compare it with the content we processed. If it is the same, we should exit the function.
-        string targetFileContent = File.ReadAllText(targetFilePath);
+        string targetFileContent = fileSystem.File.ReadAllText(targetFilePath);
 
         if (targetFileContent == fileContentResult) return;
 
@@ -177,6 +175,6 @@ internal static class TemplateTreeGenerator
             outputBuilder.Append($"{line.Text}\n");
 
         // Write StringBuilder to file.
-        File.WriteAllText(targetFilePath, outputBuilder.ToString());
+        fileSystem.File.WriteAllText(targetFilePath, outputBuilder.ToString());
     }
 }

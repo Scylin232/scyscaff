@@ -1,7 +1,9 @@
-﻿namespace ScyScaff.Core.Models.Events;
+﻿using System.IO.Abstractions;
+
+namespace ScyScaff.Core.Models.Events;
 
 public interface ITemplateGenerationEvents
 {
-    Task OnServiceGenerationStarted(DirectoryInfo serviceDirectory);
-    Task OnServiceGenerationEnded(DirectoryInfo serviceDirectory);
+    Task OnServiceGenerationStarted(IDirectoryInfo serviceDirectory);
+    Task OnServiceGenerationEnded(IDirectoryInfo serviceDirectory);
 }

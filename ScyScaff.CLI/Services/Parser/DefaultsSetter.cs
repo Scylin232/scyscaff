@@ -2,9 +2,9 @@
 
 namespace ScyScaff.Core.Services.Parser;
 
-internal static class DefaultsSetter
+public static class DefaultsSetter
 {
-    internal static void SetDefaults(ScaffolderConfig config)
+    public static void SetDefaults(ScaffolderConfig config)
     {
         // Set default values to fields that are null.
         foreach (KeyValuePair<string, ScaffolderService> service in config.Services)
