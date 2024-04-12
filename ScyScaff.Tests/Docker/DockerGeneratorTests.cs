@@ -17,7 +17,7 @@ public class DockerGeneratorTests
         MockFileSystem mockFileSystem = new();
         
         mockFileSystem.AddDirectory(Constants.WorkingDirectory);
-        mockFileSystem.AddFile(@"./Templates/docker-compose.liquid", new MockFileData(templateContent));
+        mockFileSystem.AddFile("./Templates/docker-compose.liquid", new MockFileData(templateContent));
 
         List<DockerComposeService> composeServices = new()
         {

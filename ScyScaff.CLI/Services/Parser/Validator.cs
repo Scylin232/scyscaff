@@ -14,7 +14,7 @@ public static class Validator
         List<IGlobalWorkerPlugin> loadedGlobalWorkerPlugins)
     {
         // Check if project name is not empty and contains latin letters only.
-        if (config.ProjectName.Length <= 0 || !Regex.IsMatch(config.ProjectName, @"^[a-zA-Z]+$"))
+        if (config.ProjectName.Length <= 0 || !Regex.IsMatch(config.ProjectName, "^[a-zA-Z]+$"))
             return Messages.ProjectNameEmptyError;
 
         // Check if specified dashboard specified and exists.

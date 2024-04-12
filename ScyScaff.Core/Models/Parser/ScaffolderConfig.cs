@@ -18,5 +18,5 @@ public class ScaffolderConfig
     
     // NOTE: These values are assigned at runtime (in Validator), so we can reference them later.
     public IDashboardTemplatePlugin? AssignedDashboardPlugin { get; set; }
-    public List<IGlobalWorkerPlugin> AssignedGlobalWorkerPlugins { get; set; } = new();
+    public List<IGlobalWorkerPlugin> AssignedGlobalWorkerPlugins { get; } = new();
 }
