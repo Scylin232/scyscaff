@@ -38,7 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Builder\Materials\DirectoryTreeTest\" />
+      <Folder Include="Builder\Materials\" />
     </ItemGroup>
 
 </Project>

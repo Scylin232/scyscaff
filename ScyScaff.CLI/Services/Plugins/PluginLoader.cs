@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO.Abstractions;
+using System.Reflection;
 using ScyScaff.Core.Utils.Constants;
 using ScyScaff.Core.Utils.Plugins;
 
@@ -7,25 +8,25 @@ namespace ScyScaff.Core.Services.Plugins;
 internal static class PluginLoader<T>
     where T : class
 {
-    public static List<T> ConstructPlugins(string[] pluginsAbsolutePath)
+    public static List<T> ConstructPlugins(IFileSystem fileSystem, IEnumerable<string> pluginsAbsolutePath)
     {
         return pluginsAbsolutePath.SelectMany(pluginPath =>
         {
-            Assembly pluginAssembly = LoadPlugin(pluginPath);
+            Assembly pluginAssembly = LoadPlugin(fileSystem, pluginPath);
         
             return CreatePlugin(pluginAssembly);
         }).ToList();
     }
     
-    private static Assembly LoadPlugin(string relativePath)
+    private static Assembly LoadPlugin(IFileSystem fileSystem, string relativePath)
     {
-        string root = Path.GetFullPath(Path.Combine(Enumerable.Range(0, 5).Aggregate(Path.GetDirectoryName(typeof(Program).Assembly.Location), (current, _) => Directory.GetParent(current).FullName)));
+        string root = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(Enumerable.Range(0, 5).Aggregate(fileSystem.Path.GetDirectoryName(typeof(Program).Assembly.Location), (current, _) => fileSystem.Directory.GetParent(current).FullName)));
         
-        string pluginLocation = Path.GetFullPath(Path.Combine(root, relativePath.Replace('\\', Path.DirectorySeparatorChar)));
+        string pluginLocation = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(root, relativePath.Replace('\\', fileSystem.Path.DirectorySeparatorChar)));
         
         PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);
         
-        return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
+        return loadContext.LoadFromAssemblyName(new AssemblyName(fileSystem.Path.GetFileNameWithoutExtension(pluginLocation)));
     }
 
     private static IEnumerable<T> CreatePlugin(Assembly assembly)

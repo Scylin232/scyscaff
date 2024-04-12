@@ -11,7 +11,7 @@ public static class Validator
         ScaffolderConfig config,
         List<IFrameworkTemplatePlugin> loadedFrameworkPlugins,
         List<IDashboardTemplatePlugin> loadedDashboardPlugins,
-        List<IGlobalWorkerPlugin> loadedGlobalWorkerPlugins)
+        List<IGlobalWorkerTemplatePlugin> loadedGlobalWorkerPlugins)
     {
         // Check if project name is not empty and contains latin letters only.
         if (config.ProjectName.Length <= 0 || !Regex.IsMatch(config.ProjectName, "^[a-zA-Z]+$"))
@@ -57,7 +57,7 @@ public static class Validator
         // Check if global worker: exists.
         foreach (string globalWorkerName in config.GlobalWorkers)
         {
-            IGlobalWorkerPlugin? foundGlobalWorker = loadedGlobalWorkerPlugins.Find(plugin => plugin.GlobalWorkerName == globalWorkerName);
+            IGlobalWorkerTemplatePlugin? foundGlobalWorker = loadedGlobalWorkerPlugins.Find(plugin => plugin.GlobalWorkerName == globalWorkerName);
 
             if (foundGlobalWorker is null)
                 return Messages.GlobalWorkerMissing(loadedGlobalWorkerPlugins.Select(plugin => plugin.GlobalWorkerName), globalWorkerName);

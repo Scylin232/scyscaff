@@ -1,6 +1,6 @@
 ﻿namespace ScyScaff.Core.Models.Plugins;
 
-public interface IGlobalWorkerPlugin : ITemplatePlugin
+public interface IGlobalWorkerTemplatePlugin : ITemplatePlugin
 {
     string GlobalWorkerName { get; }
 }

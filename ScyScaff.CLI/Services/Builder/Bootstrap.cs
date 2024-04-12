@@ -14,25 +14,49 @@ namespace ScyScaff.Core.Services.Builder;
 
 public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, IApplicationExit applicationExit, Options options)
 {
-    private ScaffolderConfig? _scaffolderConfig;
+    private ScaffolderConfig _scaffolderConfig = new();
 
-    private List<IFrameworkTemplatePlugin>? _loadedFrameworkPlugins;
-    private List<IDashboardTemplatePlugin>? _loadedDashboardPlugins;
-    private List<IGlobalWorkerPlugin>? _loadedGlobalWorkerPlugins;
+    private List<IFrameworkTemplatePlugin> _loadedFrameworkPlugins = new();
+    private List<IDashboardTemplatePlugin> _loadedDashboardPlugins = new();
+    private List<IGlobalWorkerTemplatePlugin> _loadedGlobalWorkerPlugins = new();
     
-    private string? _configFilePath;
-    private string? _workingDirectory;
+    private string _configFilePath = string.Empty;
+    private string _workingDirectory = string.Empty;
+    private string _dataFolderPath = string.Empty;
 
     public async Task StartGeneration()
     {
+        InitializeDataFolder();
         InitializeFiles();
         InitializePlugins();
-        
+
         await ParseAndSetConfig();
         
         SetDefaultsAndValidate();
         
         await GenerateComponents();
+    }
+
+    private void InitializeDataFolder()
+    {
+        // Define the root data folder path
+        _dataFolderPath = fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScyScaff");
+
+        // Create the data folder if it doesn't exist
+        if (!fileSystem.Directory.Exists(_dataFolderPath))
+            fileSystem.Directory.CreateDirectory(_dataFolderPath);
+
+        // List of subdirectories to create under the main data folder
+        string[] subDirectories = { "Plugins/" };
+
+        // Create each subdirectory
+        foreach (string subDirectory in subDirectories)
+        {
+            string subDirectoryPath = fileSystem.Path.Combine(_dataFolderPath, subDirectory);
+            
+            if (!fileSystem.Directory.Exists(subDirectoryPath))
+                fileSystem.Directory.CreateDirectory(subDirectoryPath);
+        }
     }
     
     private void InitializeFiles()
@@ -52,9 +76,11 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
     private void InitializePlugins()
     {
         // Gather plugins, then store them in variables.
-        _loadedFrameworkPlugins = pluginGatherer.GatherFrameworkPlugins();
-        _loadedDashboardPlugins = pluginGatherer.GatherDashboardPlugins();
-        _loadedGlobalWorkerPlugins = pluginGatherer.GatherGlobalWorkerPlugins();
+        string pluginsPath = fileSystem.Path.Combine(_dataFolderPath, "Plugins/");
+        
+        _loadedFrameworkPlugins = pluginGatherer.GatherPlugins<IFrameworkTemplatePlugin>(fileSystem, pluginsPath, PluginType.FrameworkPlugin);
+        _loadedDashboardPlugins = pluginGatherer.GatherPlugins<IDashboardTemplatePlugin>(fileSystem, pluginsPath, PluginType.DashboardPlugin);
+        _loadedGlobalWorkerPlugins = pluginGatherer.GatherPlugins<IGlobalWorkerTemplatePlugin>(fileSystem, pluginsPath, PluginType.GlobalWorkerPlugin);
     }
 
     private async Task ParseAndSetConfig()
@@ -106,7 +132,7 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
             await componentGenerator.GenerateComponent(_scaffolderConfig.AssignedDashboardPlugin, "Dashboard");
 
         // And generate global workers, if was specified.
-        foreach (IGlobalWorkerPlugin globalWorkerPlugin in _scaffolderConfig.AssignedGlobalWorkerPlugins)
+        foreach (IGlobalWorkerTemplatePlugin globalWorkerPlugin in _scaffolderConfig.AssignedGlobalWorkerPlugins)
             await componentGenerator.GenerateComponent(globalWorkerPlugin, "Global");
         
         // Generate docker-compose files from all services (if IDockerCompatible implemented).

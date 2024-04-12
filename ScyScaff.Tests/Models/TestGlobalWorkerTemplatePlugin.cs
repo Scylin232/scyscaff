@@ -2,7 +2,7 @@
 
 namespace ScyScaff.Tests.Models;
 
-public class TestGlobalWorkerPlugin : IGlobalWorkerPlugin
+public class TestGlobalWorkerTemplatePlugin : IGlobalWorkerTemplatePlugin
 {
     public string GlobalWorkerName { get; } = "TestGlobalWorker";
 

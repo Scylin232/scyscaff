@@ -10,7 +10,7 @@ public class ValidatorTests
 {
     private readonly List<IFrameworkTemplatePlugin> _emptyFrameworkPlugins = new();
     private readonly List<IDashboardTemplatePlugin> _emptyDashboardPlugins = new();
-    private readonly List<IGlobalWorkerPlugin> _emptyGlobalWorkerPlugins = new();
+    private readonly List<IGlobalWorkerTemplatePlugin> _emptyGlobalWorkerPlugins = new();
     
     private readonly List<IFrameworkTemplatePlugin> _filledFrameworkPlugins = new()
     {
@@ -20,9 +20,9 @@ public class ValidatorTests
     {
         new TestDashboardPlugin()
     };
-    private readonly List<IGlobalWorkerPlugin> _filledGlobalWorkerPlugins = new()
+    private readonly List<IGlobalWorkerTemplatePlugin> _filledGlobalWorkerPlugins = new()
     {
-        new TestGlobalWorkerPlugin()
+        new TestGlobalWorkerTemplatePlugin()
     };
     
     private readonly ScaffolderConfig _scaffolderConfig = new()

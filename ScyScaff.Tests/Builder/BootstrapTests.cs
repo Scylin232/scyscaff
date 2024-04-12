@@ -1,4 +1,5 @@
-﻿using System.IO.Abstractions.TestingHelpers;
+﻿using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Moq;
 using ScyScaff.Core.Models.Application;
 using ScyScaff.Core.Models.CLI;
@@ -12,13 +13,10 @@ namespace ScyScaff.Tests.Builder;
 public class BootstrapTests
 {
     private readonly MockFileSystem _mockFileSystem;
-    
-    private readonly Mock<IPluginGatherer> _pluginGatherMock;
-    private readonly Mock<IApplicationExit> _applicationExitMock;
-    
     private readonly Options _options;
-    
     private readonly Bootstrap _bootstrap;
+
+    private const string ConfigFilePath = "./TestDirectory/config.yml";
     
     public BootstrapTests()
     {
@@ -31,28 +29,28 @@ public class BootstrapTests
         _mockFileSystem.AddFile("./ExampleTemplateTree/Test.txt.liquid", new MockFileData("{{ config.project_name }}"));
 
         _mockFileSystem.AddDirectory("./TestDirectory/");
-        _mockFileSystem.AddFile("./TestDirectory/config.yml", new MockFileData("ProjectName: TestProject\n\nAuth: TestAuth\nDashboard: TestDashboard\n\nGlobalWorkers:\n  - TestGlobalWorker\n\nServices:\n  TestService:\n    Framework: TestFramework\n    Database: TestDatabase\n    Flags:\n      TestFlagKey: TestFlagValue\n    Models:\n      TestModel:\n        TestPropertyKey: TestPropertyValue"));
+        _mockFileSystem.AddFile(ConfigFilePath, new MockFileData("ProjectName: TestProject\n\nAuth: TestAuth\nDashboard: TestDashboard\n\nGlobalWorkers:\n  - TestGlobalWorker\n\nServices:\n  TestService:\n    Framework: TestFramework\n    Database: TestDatabase\n    Flags:\n      TestFlagKey: TestFlagValue\n    Models:\n      TestModel:\n        TestPropertyKey: TestPropertyValue"));
         
         _mockFileSystem.AddFile("./Templates/docker-compose.liquid", new MockFileData(dockerTemplateContent));
         
-        _pluginGatherMock = new();
+        Mock<IPluginGatherer> pluginGatherMock = new();
 
-        _pluginGatherMock.Setup(pg => pg.GatherFrameworkPlugins()).Returns(() => new List<IFrameworkTemplatePlugin>
+        pluginGatherMock.Setup(pg => pg.GatherPlugins<IFrameworkTemplatePlugin>(It.IsAny<IFileSystem>(), It.IsAny<string>(), It.IsAny<PluginType>())).Returns(() => new List<IFrameworkTemplatePlugin>
         {
             new TestFrameworkPlugin()
         });
         
-        _pluginGatherMock.Setup(pg => pg.GatherDashboardPlugins()).Returns(() => new List<IDashboardTemplatePlugin>
+        pluginGatherMock.Setup(pg => pg.GatherPlugins<IDashboardTemplatePlugin>(It.IsAny<IFileSystem>(), It.IsAny<string>(), It.IsAny<PluginType>())).Returns(() => new List<IDashboardTemplatePlugin>
         {
             new TestDashboardPlugin()
         });
         
-        _pluginGatherMock.Setup(pg => pg.GatherGlobalWorkerPlugins()).Returns(() => new List<IGlobalWorkerPlugin>
+        pluginGatherMock.Setup(pg => pg.GatherPlugins<IGlobalWorkerTemplatePlugin>(It.IsAny<IFileSystem>(), It.IsAny<string>(), It.IsAny<PluginType>())).Returns(() => new List<IGlobalWorkerTemplatePlugin>
         {
-            new TestGlobalWorkerPlugin()
+            new TestGlobalWorkerTemplatePlugin()
         });
         
-        _applicationExitMock = new();
+        Mock<IApplicationExit> applicationExitMock = new();
         
         _options = new()
         {
@@ -61,7 +59,7 @@ public class BootstrapTests
             File = "config.yml"
         };
 
-        _bootstrap = new(_mockFileSystem, _pluginGatherMock.Object, _applicationExitMock.Object, _options);
+        _bootstrap = new(_mockFileSystem, pluginGatherMock.Object, applicationExitMock.Object, _options);
     }
     
     [Fact]
@@ -92,7 +90,7 @@ public class BootstrapTests
     public async Task StartGeneration_DeserializeFailThrownSuccessfully_Test()
     {
         // Arrange
-        _mockFileSystem.AddFile("./TestDirectory/config.yml", new MockFileData("$invalid_data$"));
+        _mockFileSystem.AddFile(ConfigFilePath, new MockFileData("$invalid_data$"));
         
         // Act / Assert
         await Assert.ThrowsAsync<ConfigDeserializeErrorException>(async () => await _bootstrap.StartGeneration());
@@ -102,7 +100,7 @@ public class BootstrapTests
     public async Task StartGeneration_ValidatorErrorThrownSuccessfully_Test()
     {
         // Arrange
-        _mockFileSystem.AddFile("./TestDirectory/config.yml", new MockFileData("ProjectName: 123"));
+        _mockFileSystem.AddFile(ConfigFilePath, new MockFileData("ProjectName: 123"));
         
         // Act / Assert
         await Assert.ThrowsAsync<ValidatorErrorException>(async () => await _bootstrap.StartGeneration());
