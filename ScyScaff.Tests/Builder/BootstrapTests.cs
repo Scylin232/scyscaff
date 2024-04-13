@@ -6,6 +6,7 @@ using ScyScaff.Core.Models.CLI;
 using ScyScaff.Core.Models.Exceptions;
 using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Builder;
+using ScyScaff.Core.Utils.Downloader;
 using ScyScaff.Tests.Models;
 
 namespace ScyScaff.Tests.Builder;
@@ -51,6 +52,7 @@ public class BootstrapTests
         });
         
         Mock<IApplicationExit> applicationExitMock = new();
+        Mock<IDownloader> downloaderMock = new();
         
         _options = new()
         {
@@ -59,7 +61,7 @@ public class BootstrapTests
             File = "config.yml"
         };
 
-        _bootstrap = new(_mockFileSystem, pluginGatherMock.Object, applicationExitMock.Object, _options);
+        _bootstrap = new(_mockFileSystem, pluginGatherMock.Object, applicationExitMock.Object, downloaderMock.Object, _options);
     }
     
     [Fact]

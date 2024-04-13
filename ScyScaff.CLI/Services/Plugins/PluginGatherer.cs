@@ -30,7 +30,7 @@ public class PluginGatherer : IPluginGatherer
             string metadataPath = fileSystem.Path.Combine(directory, "metadata.json");
             
             // Continue to the next directory if the metadata file does not exist.
-            if (!File.Exists(metadataPath)) continue;
+            if (!fileSystem.File.Exists(metadataPath)) continue;
 
             // Read the contents of the metadata file.
             string metadataContent = fileSystem.File.ReadAllText(metadataPath);

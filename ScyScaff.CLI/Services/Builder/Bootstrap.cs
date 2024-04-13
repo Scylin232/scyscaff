@@ -8,11 +8,12 @@ using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Parser;
 using ScyScaff.Core.Utils.Constants;
+using ScyScaff.Core.Utils.Downloader;
 using ScyScaff.Docker;
 
 namespace ScyScaff.Core.Services.Builder;
 
-public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, IApplicationExit applicationExit, Options options)
+public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, IApplicationExit applicationExit, IDownloader downloader, Options options)
 {
     private ScaffolderConfig _scaffolderConfig = new();
 
@@ -26,7 +27,7 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
 
     public async Task StartGeneration()
     {
-        InitializeDataFolder();
+        await InitializeDataFolder();
         InitializeFiles();
         InitializePlugins();
 
@@ -37,14 +38,20 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
         await GenerateComponents();
     }
 
-    private void InitializeDataFolder()
+    private async Task InitializeDataFolder()
     {
+        // We declare a variable that tracks whether the "Data Folder" has been created (Usually on first launch)
+        bool dataFolderCreated = false;
+        
         // Define the root data folder path
         _dataFolderPath = fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScyScaff");
 
         // Create the data folder if it doesn't exist
         if (!fileSystem.Directory.Exists(_dataFolderPath))
+        {
+            dataFolderCreated = true;
             fileSystem.Directory.CreateDirectory(_dataFolderPath);
+        }
 
         // List of subdirectories to create under the main data folder
         string[] subDirectories = { "Plugins/" };
@@ -56,6 +63,13 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
             
             if (!fileSystem.Directory.Exists(subDirectoryPath))
                 fileSystem.Directory.CreateDirectory(subDirectoryPath);
+        }
+
+        // If the folder has been created, then download the standard plugin package.
+        if (dataFolderCreated)
+        {
+            Console.WriteLine("No plugins were found! Downloading the standard plugin package...");
+            await downloader.DownloadDefaultPlugins(fileSystem, fileSystem.Path.Combine(_dataFolderPath, "Plugins/"));
         }
     }
     

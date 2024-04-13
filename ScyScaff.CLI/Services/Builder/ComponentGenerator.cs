@@ -32,7 +32,7 @@ public class ComponentGenerator(IFileSystem fileSystem, IApplicationExit applica
 
         if (dockerCompatible is null) return;
 
-        ComposeServices.AddRange(dockerCompatible.GetComposeServices(config.ProjectName, entityName, _serviceIndex));
+        ComposeServices.AddRange(dockerCompatible.GetComposeServices(config.ProjectName, service, entityName, _serviceIndex));
         
         _serviceIndex++;
     }

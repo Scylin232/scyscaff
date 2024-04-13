@@ -1,8 +1,9 @@
-﻿using ScyScaff.Docker.Models.Builder;
+﻿using ScyScaff.Core.Models.Parser;
+using ScyScaff.Docker.Models.Builder;
 
 namespace ScyScaff.Docker.Models.Plugins;
 
 public interface IDockerCompatible
 {
-    IEnumerable<DockerComposeService> GetComposeServices(string projectName, string serviceName, int serviceIndex);
+    IEnumerable<DockerComposeService> GetComposeServices(string projectName, ScaffolderService? service, string serviceName, int serviceIndex);
 }
