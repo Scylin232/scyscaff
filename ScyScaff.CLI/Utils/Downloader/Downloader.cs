@@ -2,6 +2,7 @@
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Reflection;
+using ScyScaff.Core.Models.Application;
 
 namespace ScyScaff.Core.Utils.Downloader;
 

@@ -1,6 +1,6 @@
 ﻿using System.IO.Abstractions;
 
-namespace ScyScaff.Core.Utils.Downloader;
+namespace ScyScaff.Core.Models.Application;
 
 public interface IDownloader
 {

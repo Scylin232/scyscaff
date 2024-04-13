@@ -6,7 +6,6 @@ using ScyScaff.Core.Models.CLI;
 using ScyScaff.Core.Models.Exceptions;
 using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Builder;
-using ScyScaff.Core.Utils.Downloader;
 using ScyScaff.Tests.Models;
 
 namespace ScyScaff.Tests.Builder;

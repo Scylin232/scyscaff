@@ -8,7 +8,6 @@ using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Parser;
 using ScyScaff.Core.Utils.Constants;
-using ScyScaff.Core.Utils.Downloader;
 using ScyScaff.Docker;
 
 namespace ScyScaff.Core.Services.Builder;

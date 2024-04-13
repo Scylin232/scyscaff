@@ -1,7 +1,6 @@
 ﻿using System.IO.Abstractions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ScyScaff.Core.Models.Application;
 using ScyScaff.Core.Models.Plugins;
 
 namespace ScyScaff.Core.Services.Plugins;
