@@ -17,11 +17,10 @@ public class TreeGenerationContext(IFileSystem fileSystem, IApplicationExit appl
     public ScaffolderService? Service { get; } = service;
  
     public ITemplatePlugin TemplatePlugin { get; } = templatePlugin;
+    public int TemplateTreePathLength { get; set; }
 
     public string EntityName { get; } = entityName;
-
     public string EntityDirectory { get; set; } = string.Empty;
-    public int TemplateTreePathLength { get; set; }
 
     public bool? IsAddModeEnabled { get; } = isAddModeEnabled;
 }

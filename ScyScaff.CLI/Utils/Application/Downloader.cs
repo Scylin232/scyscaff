@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Reflection;
 using ScyScaff.Core.Models.Application;
 
-namespace ScyScaff.Core.Utils.Downloader;
+namespace ScyScaff.Core.Utils.Application;
 
 public class Downloader : IDownloader
 {

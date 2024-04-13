@@ -1,6 +1,6 @@
 ﻿using ScyScaff.Core.Models.Application;
 
-namespace ScyScaff.Core.Services.Builder;
+namespace ScyScaff.Core.Utils.Application;
 
 public class ApplicationExit : IApplicationExit
 {

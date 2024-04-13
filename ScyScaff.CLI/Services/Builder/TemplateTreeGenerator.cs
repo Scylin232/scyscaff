@@ -5,6 +5,7 @@ using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using ScyScaff.Core.Models.Builder;
 using ScyScaff.Core.Models.Events;
+using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Utils.Builder;
 using ScyScaff.Core.Utils.Constants;
 
@@ -59,17 +60,22 @@ public static class TemplateTreeGenerator
                 .ToList();
 
             // If a service is specified in the context, we will use its models, otherwise we will use the models of all services.
-            IEnumerable<KeyValuePair<string, Dictionary<string, string>>> models = 
-                context.Service?.Models ?? 
-                context.Config.Services.SelectMany(x => x.Value.Models);
+            List<ModelContext> modelsContexts = new();
+
+            // If the service was specified, then add all its models and assign them the current entityName from the context
+            if (context.Service is not null)
+                modelsContexts.AddRange(context.Service.Models.Select(model => new ModelContext { Model = model, BelongedEntityName = context.EntityName }));
+            // If the service was not specified, then add models from all services and take the name from the configuration directly
+            else
+                modelsContexts.AddRange(from service in context.Config.Services from model in service.Value.Models select new ModelContext { Model = model, BelongedEntityName = service.Key });
             
-            foreach (KeyValuePair<string, Dictionary<string, string>> model in models)
+            foreach (ModelContext modelContext in modelsContexts)
             {
                 foreach (string modelTemplateDirectory in modelTemplateDirectories)
-                    GenerateServiceFile(modelTemplateDirectory, context, model);
+                    GenerateServiceFile(modelTemplateDirectory, context, modelContext);
 
                 foreach (string modelTemplateFile in modelTemplateFiles)
-                    GenerateServiceFile(modelTemplateFile, context, model);
+                    GenerateServiceFile(modelTemplateFile, context, modelContext);
             }
         }
 
@@ -94,7 +100,7 @@ public static class TemplateTreeGenerator
     }
 
     // Generates a service file based on the provided template file and context.
-    private static void GenerateServiceFile(string filePath, TreeGenerationContext context, KeyValuePair<string, Dictionary<string, string>>? model = default)
+    private static void GenerateServiceFile(string filePath, TreeGenerationContext context, ModelContext? modelContext = default)
     {
         // Replace specific patterns to appropriate symbols.
         // NOTE: Used for symbols that can't be used in filenames, but can be used in parser, like: . (Dot), | (Pipe), etc.
@@ -107,7 +113,8 @@ public static class TemplateTreeGenerator
             context.Config,
             context.Service,
             context.ComposeServices,
-            Model = model
+            modelContext?.Model,
+            ModelEntityName = modelContext?.BelongedEntityName
         });
         
         // Build the new file path in the entity directory.
@@ -127,7 +134,8 @@ public static class TemplateTreeGenerator
             context.Config,
             context.Service,
             context.ComposeServices,
-            Model = model
+            modelContext?.Model,
+            ModelEntityName = modelContext?.BelongedEntityName
         });
 
         // Determine target file path, trimming ".liquid" from the file name.
