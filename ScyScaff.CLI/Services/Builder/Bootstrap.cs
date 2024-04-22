@@ -24,6 +24,7 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
     private string _workingDirectory = string.Empty;
     private string _dataFolderPath = string.Empty;
 
+    // Application entry point called by Program.cs.
     public async Task StartGeneration()
     {
         await InitializeDataFolder();
