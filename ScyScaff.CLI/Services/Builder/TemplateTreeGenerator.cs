@@ -5,7 +5,6 @@ using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using ScyScaff.Core.Models.Builder;
 using ScyScaff.Core.Models.Events;
-using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Utils.Builder;
 using ScyScaff.Core.Utils.Constants;
 
@@ -25,7 +24,7 @@ public static class TemplateTreeGenerator
 
         // Invoke OnServiceGenerationStarted event if supported by the template plugin.
         if (generationEvents is not null)
-            await generationEvents.OnServiceGenerationStarted(entityDirectory);
+            await generationEvents.OnServiceGenerationStarted(entityDirectory, generationContext.Service);
 
         // Get the path to the template tree.
         string templateTreePath = generationContext.TemplatePlugin.GetTemplateTreePath();
@@ -40,7 +39,7 @@ public static class TemplateTreeGenerator
 
         // Invoke OnServiceGenerationEnded event if supported by the template plugin.
         if (generationEvents is not null)
-            await generationEvents.OnServiceGenerationEnded(entityDirectory);
+            await generationEvents.OnServiceGenerationEnded(entityDirectory, generationContext.Service);
     }
 
     // Recursively parses the template tree and generates files and directories accordingly.
@@ -106,16 +105,19 @@ public static class TemplateTreeGenerator
         // NOTE: Used for symbols that can't be used in filenames, but can be used in parser, like: . (Dot), | (Pipe), etc.
         string parsedFilePath = FilePathParser.ReplacePatterns(filePath);
 
-        // Parse the file path as a Scriban template to get the actual file name.
-        Template fileNameTemplate = Template.Parse(parsedFilePath);
-        string fileNameResult = fileNameTemplate.Render(new
+        // List all parameters that we use for our templates.
+        object templateParameters = new
         {
             context.Config,
             context.Service,
             context.ComposeServices,
             modelContext?.Model,
             ModelEntityName = modelContext?.BelongedEntityName
-        });
+        };
+        
+        // Parse the file path as a Scriban template to get the actual file name.
+        Template fileNameTemplate = Template.Parse(parsedFilePath);
+        string fileNameResult = fileNameTemplate.Render(templateParameters);
         
         // Build the new file path in the entity directory.
         string newFilePath = context.FileSystem.Path.Combine(context.EntityDirectory, fileNameResult[context.TemplateTreePathLength..]);
@@ -129,14 +131,7 @@ public static class TemplateTreeGenerator
 
         // Parse the file content using Scriban.
         Template fileContentTemplate = Template.Parse(context.FileSystem.File.ReadAllText(filePath));
-        string fileContentResult = fileContentTemplate.Render(new
-        {
-            context.Config,
-            context.Service,
-            context.ComposeServices,
-            modelContext?.Model,
-            ModelEntityName = modelContext?.BelongedEntityName
-        });
+        string fileContentResult = fileContentTemplate.Render(templateParameters);
 
         // Determine target file path, trimming ".liquid" from the file name.
         string targetFilePath = newFilePath[..^7];

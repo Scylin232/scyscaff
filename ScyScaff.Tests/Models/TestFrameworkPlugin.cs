@@ -1,5 +1,6 @@
 ﻿using System.IO.Abstractions;
 using ScyScaff.Core.Models.Events;
+using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
 
 namespace ScyScaff.Tests.Models;
@@ -17,6 +18,6 @@ public class TestFrameworkPlugin : IFrameworkTemplatePlugin, ITemplateGeneration
     
     public string GetTemplateTreePath() => Constants.TemplateTreePath;
     
-    public Task OnServiceGenerationStarted(IDirectoryInfo serviceDirectory) => Task.CompletedTask;
-    public Task OnServiceGenerationEnded(IDirectoryInfo serviceDirectory) => Task.CompletedTask;
+    public Task OnServiceGenerationStarted(IDirectoryInfo serviceDirectory, ScaffolderService? scaffolderService) => Task.CompletedTask;
+    public Task OnServiceGenerationEnded(IDirectoryInfo serviceDirectory, ScaffolderService? scaffolderService) => Task.CompletedTask;
 }

@@ -16,6 +16,8 @@ public class ComponentGenerator(IFileSystem fileSystem, IApplicationExit applica
 
     public async Task GenerateComponent(ITemplatePlugin plugin, string entityName, ScaffolderService? service = default)
     {
+        _serviceIndex++;
+
         TreeGenerationContext generationContext = new TreeGenerationContext(
             fileSystem,
             applicationExit,
@@ -32,8 +34,11 @@ public class ComponentGenerator(IFileSystem fileSystem, IApplicationExit applica
 
         if (dockerCompatible is null) return;
 
-        ComposeServices.AddRange(dockerCompatible.GetComposeServices(config.ProjectName, service, entityName, _serviceIndex));
+        List<DockerComposeService> composeServices = dockerCompatible.GetComposeServices(config.ProjectName, service, entityName, _serviceIndex).ToList();
+
+        foreach (DockerComposeService composeService in composeServices)
+            composeService.LinkedService = service;
         
-        _serviceIndex++;
+        ComposeServices.AddRange(composeServices);
     }
 }

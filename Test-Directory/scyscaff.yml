@@ -20,8 +20,6 @@ Services:
       Product:
         Price: decimal 
         Description: string
-        Count: int
-        Article: string
       Supplier:
         Name: string
   Orders:
