@@ -1,0 +1,23 @@
+﻿ProjectName: TestProject
+
+Auth: TestAuth
+
+Dashboard:
+  Name: TestDashboard
+  Flags:
+    TestFlagKey: TestFlagValue
+
+GlobalWorkers:
+  - Name: TestGlobalWorker
+    Flags:
+      TestFlagKey: TestFlagValue
+
+Services:
+  TestService:
+    Framework: TestFramework
+    Database: TestDatabase
+    Flags:
+      TestFlagKey: TestFlagValue
+    Models:
+      TestModel:
+        TestPropertyKey: TestPropertyValue

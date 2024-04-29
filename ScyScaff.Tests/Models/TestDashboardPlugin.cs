@@ -4,7 +4,10 @@ namespace ScyScaff.Tests.Models;
 
 public class TestDashboardPlugin : IDashboardTemplatePlugin
 {
-    public string DashboardName { get; } = "TestDashboard";
+    public string Name { get; } = "TestDashboard";
 
-    public string GetTemplateTreePath() => Constants.TemplateTreePath;
+    public Dictionary<string, string[]> SupportedFlags { get; } = new()
+    {
+        { "TestFlagKey", new[] { "TestFlagValue" } }
+    };
 }

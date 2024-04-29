@@ -1,28 +1,23 @@
 ﻿ProjectName: ScyCommerce
 
 Auth: auth0
-Dashboard: svelte-crud
+Dashboard:
+  Name: svelte-crud
+
+GlobalWorkers:
+  - Name: grafana-prometheus
+  - Name: elk
 
 DefaultFramework: aspnet-ddd
 DefaultDatabase: postgresql
-DefaultFlags:
+DefaultServiceFlags:
   Logging: elk
 
-GlobalWorkers:
-  - grafana-prometheus
-  - elk
-
 Services:
-  Product:
+  Products:
     Flags:
       Metrics: prometheus
     Models:
-      Product:
-        Price: decimal 
+      Category:
+        Title: string
         Description: string
-      Supplier:
-        Name: string
-  Orders:
-    Models:
-      Order:
-        Date: string

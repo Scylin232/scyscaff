@@ -29,10 +29,16 @@ public class ValidatorTests
     {
         ProjectName = Constants.ProjectName,
         Auth = "TestAuth",
-        Dashboard = "TestDashboard",
-        GlobalWorkers = new List<string>
+        Dashboard = new ScaffolderDashboard
         {
-            "TestGlobalWorker"
+            Name = "TestDashboard"
+        },
+        GlobalWorkers = new List<ScaffolderGlobalWorker>
+        {
+            new()
+            {
+                Name = "TestGlobalWorker"
+            }
         },
         Services = new Dictionary<string, ScaffolderService>
         {
@@ -71,7 +77,7 @@ public class ValidatorTests
         Validator.EnsureConfig(_scaffolderConfig, _emptyFrameworkPlugins, _filledDashboardPlugins, _emptyGlobalWorkerPlugins);
         
         // Arrange
-        Assert.NotNull(_scaffolderConfig.AssignedDashboardPlugin);
+        Assert.NotNull(_scaffolderConfig.Dashboard!.DashboardTemplatePlugin);
     }
 
     [Fact]
@@ -81,7 +87,7 @@ public class ValidatorTests
         string? result = Validator.EnsureConfig(_scaffolderConfig, _emptyFrameworkPlugins, _emptyDashboardPlugins, _emptyGlobalWorkerPlugins);
         
         // Assert
-        string expectedResult = Messages.DashboardMissing(Array.Empty<string>(), _scaffolderConfig.Dashboard!);
+        string expectedResult = Messages.DashboardMissing(Array.Empty<string>(), _scaffolderConfig.Dashboard!.Name);
         Assert.Equal(expectedResult, result);
     }
 
@@ -116,7 +122,7 @@ public class ValidatorTests
         string? result = Validator.EnsureConfig(_scaffolderConfig, _filledFrameworkPlugins, _filledDashboardPlugins, _emptyGlobalWorkerPlugins);
         
         // Assert
-        string expectedResult = Messages.FrameworkAuthMissing(_filledFrameworkPlugins[0].SupportedAuth, _scaffolderConfig.Auth, _filledFrameworkPlugins[0].FrameworkName);
+        string expectedResult = Messages.FrameworkAuthMissing(_filledFrameworkPlugins[0].SupportedAuth, _scaffolderConfig.Auth, _filledFrameworkPlugins[0].Name);
         Assert.Equal(expectedResult, result);
     }
 
@@ -130,7 +136,7 @@ public class ValidatorTests
         string? result = Validator.EnsureConfig(_scaffolderConfig, _filledFrameworkPlugins, _filledDashboardPlugins, _emptyGlobalWorkerPlugins);
         
         // Assert
-        string expectedResult = Messages.FrameworkDatabaseMissing(_filledFrameworkPlugins[0].SupportedDatabases, _scaffolderConfig.Services["TestService"].Database!, _filledFrameworkPlugins[0].FrameworkName);
+        string expectedResult = Messages.FrameworkDatabaseMissing(_filledFrameworkPlugins[0].SupportedDatabases, _scaffolderConfig.Services["TestService"].Database!, _filledFrameworkPlugins[0].Name);
         Assert.Equal(expectedResult, result);
     }
 
@@ -144,7 +150,7 @@ public class ValidatorTests
         string? result = Validator.EnsureConfig(_scaffolderConfig, _filledFrameworkPlugins, _filledDashboardPlugins, _emptyGlobalWorkerPlugins);
         
         // Assert
-        string expectedResult = Messages.FrameworkFlagKeyNotSupported(_filledFrameworkPlugins[0].SupportedFlags.Keys, "UnknownFlagKey", _filledFrameworkPlugins[0].FrameworkName);
+        string expectedResult = Messages.PluginFlagKeyNotSupported(_filledFrameworkPlugins[0].SupportedFlags.Keys, "UnknownFlagKey", _filledFrameworkPlugins[0].Name);
         Assert.Equal(expectedResult, result);
     }
 
@@ -158,7 +164,7 @@ public class ValidatorTests
         string? result = Validator.EnsureConfig(_scaffolderConfig, _filledFrameworkPlugins, _filledDashboardPlugins, _emptyGlobalWorkerPlugins);
         
         // Assert
-        string expectedResult = Messages.FrameworkFlagValueNotSupported(_filledFrameworkPlugins[0].SupportedFlags["TestFlagKey"], "TestFlagKey", "UnknownFlagValue", _filledFrameworkPlugins[0].FrameworkName);
+        string expectedResult = Messages.PluginFlagValueNotSupported(_filledFrameworkPlugins[0].SupportedFlags["TestFlagKey"], "TestFlagKey", "UnknownFlagValue", _filledFrameworkPlugins[0].Name);
         Assert.Equal(expectedResult, result);
     }
 
@@ -169,23 +175,26 @@ public class ValidatorTests
         Validator.EnsureConfig(_scaffolderConfig, _filledFrameworkPlugins, _filledDashboardPlugins, _filledGlobalWorkerPlugins);
         
         // Assert
-        Assert.Single(_scaffolderConfig.AssignedGlobalWorkerPlugins);
+        Assert.Single(_scaffolderConfig.GlobalWorkers.Select(gb => gb.GlobalWorkerTemplatePlugin));
     }
 
     [Fact]
     public void EnsureConfig_GlobalWorkerMissingCancelledSuccessfully_Test()
     {
         // Arrange
-        _scaffolderConfig.GlobalWorkers = new List<string>
+        _scaffolderConfig.GlobalWorkers = new List<ScaffolderGlobalWorker>
         {
-            "UnknownGlobalWorker"
+            new()
+            {
+                Name = "UnknownGlobalWorker"
+            }
         };
         
         // Act
         string? result = Validator.EnsureConfig(_scaffolderConfig, _filledFrameworkPlugins, _filledDashboardPlugins, _filledGlobalWorkerPlugins);
         
         // Assert
-        string expectedResult = Messages.GlobalWorkerMissing(_filledGlobalWorkerPlugins.Select(p => p.GlobalWorkerName), "UnknownGlobalWorker");
+        string expectedResult = Messages.GlobalWorkerMissing(_filledGlobalWorkerPlugins.Select(p => p.Name), "UnknownGlobalWorker");
         Assert.Equal(expectedResult, result);
     }
 }

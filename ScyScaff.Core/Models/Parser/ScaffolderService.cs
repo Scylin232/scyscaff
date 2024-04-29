@@ -2,7 +2,7 @@
 
 namespace ScyScaff.Core.Models.Parser;
 
-public class ScaffolderService
+public class ScaffolderService : IScaffolderEntity
 {
     public string? Framework { get; set; }
     public string? Database { get; set; }

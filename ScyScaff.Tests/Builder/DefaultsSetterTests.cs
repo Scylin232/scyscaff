@@ -13,7 +13,7 @@ public class DefaultsSetterTests
         {
             DefaultDatabase = "DefaultDatabase",
             DefaultFramework = "DefaultFramework",
-            DefaultFlags = new Dictionary<string, string>
+            DefaultServiceFlags = new Dictionary<string, string>
             {
                 { "DefaultFlagKey", "DefaultFlagValue" }
             },
@@ -34,6 +34,6 @@ public class DefaultsSetterTests
         
         Assert.Equal(scaffolderConfig.DefaultDatabase, service.Database);
         Assert.Equal(scaffolderConfig.DefaultFramework, service.Framework);
-        Assert.Equal(scaffolderConfig.DefaultFlags, service.Flags);
+        Assert.Equal(scaffolderConfig.DefaultServiceFlags, service.Flags);
     }
 }

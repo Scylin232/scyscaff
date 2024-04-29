@@ -17,55 +17,79 @@ public static class Validator
         if (config.ProjectName.Length <= 0 || !Regex.IsMatch(config.ProjectName, "^[a-zA-Z]+$"))
             return Messages.ProjectNameEmptyError;
 
-        // Check if specified dashboard specified and exists.
+        // Check if specified dashboard: exists, supports specified flags.
         if (config.Dashboard is not null)
         {
-            IDashboardTemplatePlugin? foundDashboard = loadedDashboardPlugins.Find(plugin => plugin.DashboardName == config.Dashboard);
+            IDashboardTemplatePlugin? foundDashboard = loadedDashboardPlugins.Find(plugin => plugin.Name == config.Dashboard.Name);
         
             if (foundDashboard is null)
-                return Messages.DashboardMissing(loadedDashboardPlugins.Select(plugin => plugin.DashboardName), config.Dashboard);
+                return Messages.DashboardMissing(loadedDashboardPlugins.Select(plugin => plugin.Name), config.Dashboard.Name);
 
-            config.AssignedDashboardPlugin = foundDashboard;
+            string? flagCheckError = CheckFlags(foundDashboard, config.Dashboard);
+
+            if (flagCheckError is not null)
+                return flagCheckError;
+            
+            config.Dashboard.DashboardTemplatePlugin = foundDashboard;
         }
         
         // Check if framework: exists, supports selected auth, supports selected database, supports specified flags.
         foreach (KeyValuePair<string, ScaffolderService> service in config.Services)
         {
-            IFrameworkTemplatePlugin? foundFramework = loadedFrameworkPlugins.Find(plugin => plugin.FrameworkName == service.Value.Framework);
+            IFrameworkTemplatePlugin? foundFramework = loadedFrameworkPlugins.Find(plugin => plugin.Name == service.Value.Framework);
 
             if (foundFramework is null)
-                return Messages.FrameworkMissing(loadedFrameworkPlugins.Select(plugin => plugin.FrameworkName), service.Value.Framework!);
+                return Messages.FrameworkMissing(loadedFrameworkPlugins.Select(plugin => plugin.Name), service.Value.Framework!);
 
             if (!foundFramework.SupportedAuth.Contains(config.Auth))
-                return Messages.FrameworkAuthMissing(foundFramework.SupportedAuth, config.Auth, foundFramework.FrameworkName);
+                return Messages.FrameworkAuthMissing(foundFramework.SupportedAuth, config.Auth, foundFramework.Name);
 
             if (!foundFramework.SupportedDatabases.Contains(service.Value.Database))
-                return Messages.FrameworkDatabaseMissing(foundFramework.SupportedDatabases, service.Value.Database!, foundFramework.FrameworkName);
+                return Messages.FrameworkDatabaseMissing(foundFramework.SupportedDatabases, service.Value.Database!, foundFramework.Name);
 
-            foreach (KeyValuePair<string, string> flag in service.Value.Flags)
-            {
-                if (!foundFramework.SupportedFlags.ContainsKey(flag.Key))
-                    return Messages.FrameworkFlagKeyNotSupported(foundFramework.SupportedFlags.Keys, flag.Key, foundFramework.FrameworkName);
+            string? flagCheckError = CheckFlags(foundFramework, service.Value);
 
-                if (!foundFramework.SupportedFlags[flag.Key].Contains(flag.Value))
-                    return Messages.FrameworkFlagValueNotSupported(foundFramework.SupportedFlags[flag.Key], flag.Key, flag.Value, foundFramework.FrameworkName);
-            }
+            if (flagCheckError is not null)
+                return flagCheckError;
     
             service.Value.AssignedFrameworkPlugin = foundFramework;
         }
 
-        // Check if global worker: exists.
-        foreach (string globalWorkerName in config.GlobalWorkers)
+        // Check if global worker: exists, supports specified flags.
+        int globalWorkerIndex = 0;
+        
+        foreach (ScaffolderGlobalWorker globalWorker in config.GlobalWorkers)
         {
-            IGlobalWorkerTemplatePlugin? foundGlobalWorker = loadedGlobalWorkerPlugins.Find(plugin => plugin.GlobalWorkerName == globalWorkerName);
+            IGlobalWorkerTemplatePlugin? foundGlobalWorker = loadedGlobalWorkerPlugins.Find(plugin => plugin.Name == globalWorker.Name);
 
             if (foundGlobalWorker is null)
-                return Messages.GlobalWorkerMissing(loadedGlobalWorkerPlugins.Select(plugin => plugin.GlobalWorkerName), globalWorkerName);
-            
-            config.AssignedGlobalWorkerPlugins.Add(foundGlobalWorker);
+                return Messages.GlobalWorkerMissing(loadedGlobalWorkerPlugins.Select(plugin => plugin.Name), globalWorker.Name);
+
+            string? flagCheckError = CheckFlags(foundGlobalWorker, globalWorker);
+
+            if (flagCheckError is not null)
+                return flagCheckError;
+
+            config.GlobalWorkers[globalWorkerIndex].GlobalWorkerTemplatePlugin = foundGlobalWorker;
+
+            globalWorkerIndex++;
         }
         
         // Return null if no errors was found.
+        return null;
+    }
+
+    private static string? CheckFlags(ITemplatePlugin plugin, IScaffolderEntity scaffolderEntity)
+    {
+        foreach (KeyValuePair<string, string> flag in scaffolderEntity.Flags)
+        {
+            if (!plugin.SupportedFlags.ContainsKey(flag.Key))
+                return Messages.PluginFlagKeyNotSupported(plugin.SupportedFlags.Keys, flag.Key, plugin.Name);
+
+            if (!plugin.SupportedFlags[flag.Key].Contains(flag.Value))
+                return Messages.PluginFlagValueNotSupported(plugin.SupportedFlags[flag.Key], flag.Key, flag.Value, plugin.Name);
+        }
+
         return null;
     }
 }

@@ -12,7 +12,7 @@ using ScyScaff.Docker;
 
 namespace ScyScaff.Core.Services.Builder;
 
-public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, IApplicationExit applicationExit, IDownloader downloader, Options options)
+public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, IApplication application, IDownloader downloader, Options options)
 {
     private ScaffolderConfig _scaffolderConfig = new();
 
@@ -135,19 +135,23 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
     private async Task GenerateComponents()
     {
         // Initialize component generator.
-        ComponentGenerator componentGenerator = new(fileSystem, applicationExit, _scaffolderConfig, _workingDirectory, options);
+        ComponentGenerator componentGenerator = new(fileSystem, application, _scaffolderConfig, _workingDirectory, options);
     
         // Finally! Generate services.
         foreach (KeyValuePair<string, ScaffolderService> service in _scaffolderConfig.Services)
             await componentGenerator.GenerateComponent(service.Value.AssignedFrameworkPlugin!, service.Key, service.Value);
 
         // And generate dashboard, if was specified.
-        if (_scaffolderConfig.AssignedDashboardPlugin is not null)
-            await componentGenerator.GenerateComponent(_scaffolderConfig.AssignedDashboardPlugin, "Dashboard");
+        if (_scaffolderConfig.Dashboard?.DashboardTemplatePlugin is not null)
+            await componentGenerator.GenerateComponent(_scaffolderConfig.Dashboard.DashboardTemplatePlugin, "Dashboard", _scaffolderConfig.Dashboard);
 
         // And generate global workers, if was specified.
-        foreach (IGlobalWorkerTemplatePlugin globalWorkerPlugin in _scaffolderConfig.AssignedGlobalWorkerPlugins)
-            await componentGenerator.GenerateComponent(globalWorkerPlugin, "Global");
+        foreach (ScaffolderGlobalWorker globalWorker in _scaffolderConfig.GlobalWorkers)
+        {
+            if (globalWorker.GlobalWorkerTemplatePlugin is null) continue;
+            
+            await componentGenerator.GenerateComponent(globalWorker.GlobalWorkerTemplatePlugin, "Global", globalWorker);
+        }
         
         // Generate docker-compose files from all services (if IDockerCompatible implemented).
         DockerGenerator.GenerateComposeServices(fileSystem, componentGenerator.ComposeServices, _scaffolderConfig.ProjectName, _workingDirectory);

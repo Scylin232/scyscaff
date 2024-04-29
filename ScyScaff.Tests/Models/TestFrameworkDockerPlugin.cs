@@ -6,14 +6,15 @@ namespace ScyScaff.Tests.Models;
 
 public class TestFrameworkDockerPlugin : TestFrameworkPlugin, IDockerCompatible
 {
-    public IEnumerable<DockerComposeService> GetComposeServices(string projectName, ScaffolderService? service, string serviceName, int serviceIndex)
+    public IEnumerable<DockerComposeService> GetComposeServices(string projectName, IScaffolderEntity? entity, string serviceName, int serviceIndex)
     {
-        List<DockerComposeService> dockerComposeServices = new();
-        
-        dockerComposeServices.Add(new DockerComposeService
+        List<DockerComposeService> dockerComposeServices = new()
         {
-            Image = "TestImage"
-        });
+            new DockerComposeService
+            {
+                Image = "TestImage"
+            }
+        };
 
         return dockerComposeServices;
     }

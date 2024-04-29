@@ -11,11 +11,11 @@ await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options
     // Initialize services.
     FileSystem fileSystem = new();
     PluginGatherer pluginGatherer = new();
-    ApplicationExit applicationExit = new();
+    Application application = new();
     Downloader downloader = new();
     
     // Initialize bootstrap.
-    Bootstrap bootstrap = new(fileSystem, pluginGatherer, applicationExit, downloader, options);
+    Bootstrap bootstrap = new(fileSystem, pluginGatherer, application, downloader, options);
 
     // Start generation.
     await bootstrap.StartGeneration();

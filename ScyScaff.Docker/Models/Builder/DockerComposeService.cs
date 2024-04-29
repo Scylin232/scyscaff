@@ -19,8 +19,8 @@ public class DockerComposeService
     public Dictionary<string, ComposeDependency>? Dependencies { get; set; }
     
     // NOTE: This value is set in the ComponentGenerator for easy access
-    // to the Scaffolder service during, for example, iteration of ComposeServices
-    public ScaffolderService? LinkedService { get; set; }
+    // to the Scaffolder entity during, for example, iteration of ComposeServices
+    public IScaffolderEntity? LinkedEntity { get; set; }
 }
 
 public class ComposeDependency

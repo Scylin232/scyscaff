@@ -6,21 +6,20 @@ using ScyScaff.Docker.Models.Builder;
 
 namespace ScyScaff.Core.Services.Builder;
 
-public class TreeGenerationContext(IFileSystem fileSystem, IApplicationExit applicationExit, ScaffolderConfig config, List<DockerComposeService> composeServices, ScaffolderService? service, ITemplatePlugin templatePlugin, string entityName, bool? isAddModeEnabled)
+public class TreeGenerationContext(IFileSystem fileSystem, IApplication application, ScaffolderConfig config, List<DockerComposeService> composeServices, IScaffolderEntity scaffolderEntity, ITemplatePlugin templatePlugin, string entityName, bool isAddModeEnabled)
 {
     public IFileSystem FileSystem { get; } = fileSystem;
-    public IApplicationExit ApplicationExit { get; } = applicationExit;
+    public IApplication Application { get; } = application;
     
     public ScaffolderConfig Config { get; } = config;
     public List<DockerComposeService> ComposeServices { get; } = composeServices;
     
-    public ScaffolderService? Service { get; } = service;
- 
     public ITemplatePlugin TemplatePlugin { get; } = templatePlugin;
     public int TemplateTreePathLength { get; set; }
-
+    
+    public IScaffolderEntity ScaffolderEntity { get; } = scaffolderEntity;
     public string EntityName { get; } = entityName;
     public string EntityDirectory { get; set; } = string.Empty;
 
-    public bool? IsAddModeEnabled { get; } = isAddModeEnabled;
+    public bool IsAddModeEnabled { get; } = isAddModeEnabled;
 }

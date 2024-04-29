@@ -5,9 +5,10 @@ using ScyScaff.Core.Models.Plugins;
 
 namespace ScyScaff.Tests.Models;
 
-public class TestFrameworkPlugin : IFrameworkTemplatePlugin, ITemplateGenerationEvents
+public class TestFrameworkPlugin : IFrameworkTemplatePlugin, IGenerationEvents
 {
-    public string FrameworkName { get; } = "TestFramework";
+    public string Name { get; } = "TestFramework";
+    
     public string[] SupportedAuth { get; } = { "TestAuth" };
     public string[] SupportedDatabases { get; } = { "TestDatabase" };
 
@@ -16,8 +17,6 @@ public class TestFrameworkPlugin : IFrameworkTemplatePlugin, ITemplateGeneration
         { "TestFlagKey", new[] { "TestFlagValue" } }
     };
     
-    public string GetTemplateTreePath() => Constants.TemplateTreePath;
-    
-    public Task OnServiceGenerationStarted(IDirectoryInfo serviceDirectory, ScaffolderService? scaffolderService) => Task.CompletedTask;
-    public Task OnServiceGenerationEnded(IDirectoryInfo serviceDirectory, ScaffolderService? scaffolderService) => Task.CompletedTask;
+    public Task OnGenerationStarted(IDirectoryInfo serviceDirectory, IScaffolderEntity? entity) => Task.CompletedTask;
+    public Task OnGenerationEnded(IDirectoryInfo serviceDirectory, IScaffolderEntity? entity) => Task.CompletedTask;
 }

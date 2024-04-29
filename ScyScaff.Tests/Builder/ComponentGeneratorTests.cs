@@ -3,6 +3,7 @@ using Moq;
 using ScyScaff.Core.Models.Application;
 using ScyScaff.Core.Models.CLI;
 using ScyScaff.Core.Models.Parser;
+using ScyScaff.Core.Models.Plugins;
 using ScyScaff.Core.Services.Builder;
 using ScyScaff.Tests.Models;
 
@@ -11,20 +12,29 @@ namespace ScyScaff.Tests.Builder;
 public class ComponentGeneratorTests
 {
     private readonly MockFileSystem _mockFileSystem = new();
-    private readonly Mock<IApplicationExit> _applicationExit = new();
+    private readonly Mock<IApplication> _application = new();
     
     private static readonly ScaffolderConfig ScaffolderConfig = new()
     {
         ProjectName = Constants.ProjectName,
         Auth = "TestAuth",
-        Dashboard = "TestDashboard",
+        Dashboard = new ScaffolderDashboard
+        {
+            Name = "TestDashboard"
+        },
         DefaultFramework = "TestDefaultFramework",
         DefaultDatabase = "TestDefaultDatabase",
-        DefaultFlags = new Dictionary<string, string>
+        DefaultServiceFlags = new Dictionary<string, string>
         {
             { "TestFlagKey", "TestFlagValue" }
         },
-        GlobalWorkers = new List<string> { "TestGlobalWorker" },
+        GlobalWorkers = new List<ScaffolderGlobalWorker>
+        {
+            new()
+            {
+                Name = "TestGlobalWorker"
+            }
+        },
         Services = new Dictionary<string, ScaffolderService>
         {
             {
@@ -50,6 +60,12 @@ public class ComponentGeneratorTests
         }
     };
 
+    public ComponentGeneratorTests()
+    {
+        _application.Setup(app => app.GetPluginTemplateTreePath(It.IsAny<ITemplatePlugin>()))
+            .Returns("./ExampleTemplateTree/");
+    }
+
     [Fact]
     public async Task GenerateComponent_ComponentGeneratedSuccessfully_Test()
     {
@@ -57,12 +73,12 @@ public class ComponentGeneratorTests
         Options options = new();
         TestFrameworkPlugin testFrameworkPlugin = new();
 
-        string templateContent = "{{ config.project_name }} {{ service.framework }}";
+        string templateContent = "{{ config.project_name }} {{ entity.framework }}";
         
         _mockFileSystem.AddDirectory("./ExampleTemplateTree/");
         _mockFileSystem.AddFile("./ExampleTemplateTree/Test.txt.liquid", new MockFileData(templateContent));
         
-        ComponentGenerator componentGenerator = new(_mockFileSystem, _applicationExit.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
+        ComponentGenerator componentGenerator = new(_mockFileSystem, _application.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
         
         // Act
         await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test", ScaffolderConfig.Services["TestService"]);
@@ -85,14 +101,14 @@ public class ComponentGeneratorTests
 
         string templateContent = @"
         // Custom Code...
-        {{~ for field in service.models[""TestModel""] ~}}
+        {{~ for field in entity.models[""TestModel""] ~}}
         public {{ field.value }} {{ field.key }} { get; set; }
         {{~ end ~}}";
         
         _mockFileSystem.AddDirectory("./ExampleTemplateTree/");
         _mockFileSystem.AddFile("./ExampleTemplateTree/Test.txt.liquid", new MockFileData(templateContent));
         
-        ComponentGenerator componentGenerator = new(_mockFileSystem, _applicationExit.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
+        ComponentGenerator componentGenerator = new(_mockFileSystem, _application.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
         
         // Act
         for (int i = 0; i < 2; i++)
@@ -123,7 +139,7 @@ public class ComponentGeneratorTests
         _mockFileSystem.AddDirectory("./ExampleTemplateTree/");
         _mockFileSystem.AddFile("./ExampleTemplateTree/Test.txt.liquid", new MockFileData(templateContent));
         
-        ComponentGenerator componentGenerator = new(_mockFileSystem, _applicationExit.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
+        ComponentGenerator componentGenerator = new(_mockFileSystem, _application.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
 
         // Act
         for (int i = 0; i < 2; i++)
@@ -136,7 +152,7 @@ public class ComponentGeneratorTests
     }
 
     [Fact]
-    public async Task GenerateComponent_AddModeWarningTriggeredSuccessfully_Test()
+    public async Task GenerateComponent_AddModeErrorTriggeredSuccessfully_Test()
     {
         // Arrange
         Options options = new();
@@ -145,14 +161,14 @@ public class ComponentGeneratorTests
         _mockFileSystem.AddDirectory("./ExampleTemplateTree/");
         _mockFileSystem.AddFile("./ExampleTemplateTree/Test.txt.liquid", new MockFileData("Test Content"));
 
-        ComponentGenerator componentGenerator = new(_mockFileSystem, _applicationExit.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
+        ComponentGenerator componentGenerator = new(_mockFileSystem, _application.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
         
         // Act
         for (int i = 0; i < 3; i++)
             await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test", ScaffolderConfig.Services["TestService"]);
         
         // Assert
-        _applicationExit.Verify(m => m.ExitErrorCodeMinusOne());
+        _application.Verify(m => m.ExitErrorCodeMinusOne());
     }
 
     [Fact]
@@ -173,13 +189,13 @@ public class ComponentGeneratorTests
         _mockFileSystem.AddDirectory("./ExampleTemplateTree/{{model.key}}");
         _mockFileSystem.AddFile("./ExampleTemplateTree/{{model.key}}.txt.liquid", new MockFileData(templateContent));
 
-        ComponentGenerator componentGenerator = new(_mockFileSystem, _applicationExit.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
+        ComponentGenerator componentGenerator = new(_mockFileSystem, _application.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
         
         // Act
         // Generation with service specification (Only service models will be used)
         await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test", ScaffolderConfig.Services["TestService"]);
         // Generation without specifying a service (All configuration models will be used)
-        await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test");
+        await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test", ScaffolderConfig.Dashboard!);
         
         // Assert
         bool directoryExists = _mockFileSystem.Directory.Exists("./TestModel/");
@@ -199,7 +215,7 @@ public class ComponentGeneratorTests
 
         _mockFileSystem.AddDirectory("./ExampleTemplateTree/");
         
-        ComponentGenerator componentGenerator = new(_mockFileSystem, _applicationExit.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
+        ComponentGenerator componentGenerator = new(_mockFileSystem, _application.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
         
         // Act
         await componentGenerator.GenerateComponent(testFrameworkDockerPlugin, "Test", ScaffolderConfig.Services["TestService"]);

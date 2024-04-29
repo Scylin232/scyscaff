@@ -3,5 +3,7 @@
 // Basic interface of all plugins.
 public interface ITemplatePlugin
 {
-    string GetTemplateTreePath();
+    public string Name { get; }
+    
+    public Dictionary<string, string[]> SupportedFlags { get; }
 }

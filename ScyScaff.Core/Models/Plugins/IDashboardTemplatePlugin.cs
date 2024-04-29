@@ -1,6 +1,3 @@
 ﻿namespace ScyScaff.Core.Models.Plugins;
 
-public interface IDashboardTemplatePlugin : ITemplatePlugin
-{
-    string DashboardName { get; }
-}
+public interface IDashboardTemplatePlugin : ITemplatePlugin;

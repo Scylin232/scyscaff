@@ -4,7 +4,10 @@ namespace ScyScaff.Tests.Models;
 
 public class TestGlobalWorkerTemplatePlugin : IGlobalWorkerTemplatePlugin
 {
-    public string GlobalWorkerName { get; } = "TestGlobalWorker";
+    public string Name { get; } = "TestGlobalWorker";
 
-    public string GetTemplateTreePath() => Constants.TemplateTreePath;
+    public Dictionary<string, string[]> SupportedFlags { get; } = new()
+    {
+        { "TestFlagKey", new[] { "TestFlagValue" } }
+    };
 }

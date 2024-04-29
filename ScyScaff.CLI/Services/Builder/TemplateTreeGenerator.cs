@@ -5,6 +5,7 @@ using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using ScyScaff.Core.Models.Builder;
 using ScyScaff.Core.Models.Events;
+using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Utils.Builder;
 using ScyScaff.Core.Utils.Constants;
 
@@ -19,15 +20,17 @@ public static class TemplateTreeGenerator
         // Create a directory for the entity based on project name and entity name.
         IDirectoryInfo entityDirectory = generationContext.FileSystem.Directory.CreateDirectory(generationContext.FileSystem.Path.Combine(workingDirectory, $"{generationContext.Config.ProjectName}.{generationContext.EntityName}"));
 
-        // Check if the template plugin implements the ITemplateGenerationEvents interface.
-        ITemplateGenerationEvents? generationEvents = generationContext.TemplatePlugin as ITemplateGenerationEvents;
+        // Check if the template plugin implements the IGenerationEvents interface.
+        IGenerationEvents? generationEvents = generationContext.TemplatePlugin as IGenerationEvents;
 
         // Invoke OnServiceGenerationStarted event if supported by the template plugin.
         if (generationEvents is not null)
-            await generationEvents.OnServiceGenerationStarted(entityDirectory, generationContext.Service);
+            await generationEvents.OnGenerationStarted(entityDirectory, generationContext.ScaffolderEntity);
 
         // Get the path to the template tree.
-        string templateTreePath = generationContext.TemplatePlugin.GetTemplateTreePath();
+        string templateTreePath = generationContext.Application.GetPluginTemplateTreePath(generationContext.TemplatePlugin);
+        
+        // Generate a directory tree nodes in template tree directory.
         DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(generationContext.FileSystem, templateTreePath);
 
         // Set some properties in the generation context for use in template processing.
@@ -39,7 +42,7 @@ public static class TemplateTreeGenerator
 
         // Invoke OnServiceGenerationEnded event if supported by the template plugin.
         if (generationEvents is not null)
-            await generationEvents.OnServiceGenerationEnded(entityDirectory, generationContext.Service);
+            await generationEvents.OnGenerationEnded(entityDirectory, generationContext.ScaffolderEntity);
     }
 
     // Recursively parses the template tree and generates files and directories accordingly.
@@ -62,8 +65,8 @@ public static class TemplateTreeGenerator
             List<ModelContext> modelsContexts = new();
 
             // If the service was specified, then add all its models and assign them the current entityName from the context
-            if (context.Service is not null)
-                modelsContexts.AddRange(context.Service.Models.Select(model => new ModelContext { Model = model, BelongedEntityName = context.EntityName }));
+            if (context.ScaffolderEntity is ScaffolderService contextService)
+                modelsContexts.AddRange(contextService.Models.Select(model => new ModelContext { Model = model, BelongedEntityName = context.EntityName }));
             // If the service was not specified, then add models from all services and take the name from the configuration directly
             else
                 modelsContexts.AddRange(from service in context.Config.Services from model in service.Value.Models select new ModelContext { Model = model, BelongedEntityName = service.Key });
@@ -109,10 +112,11 @@ public static class TemplateTreeGenerator
         object templateParameters = new
         {
             context.Config,
-            context.Service,
-            context.ComposeServices,
+            Entity = context.ScaffolderEntity,
+            context.EntityName,
             modelContext?.Model,
-            ModelEntityName = modelContext?.BelongedEntityName
+            ModelEntityName = modelContext?.BelongedEntityName,
+            context.ComposeServices
         };
         
         // Parse the file path as a Scriban template to get the actual file name.
@@ -140,10 +144,10 @@ public static class TemplateTreeGenerator
         if (context.FileSystem.File.Exists(targetFilePath))
         {
             // Check if add-mode is enabled, if not, stop the program.
-            if (context.IsAddModeEnabled is null or false)
+            if (!context.IsAddModeEnabled)
             {
-                Console.WriteLine(Messages.AddModeWarning);
-                context.ApplicationExit.ExitErrorCodeMinusOne();
+                Console.WriteLine(Messages.AddModeNotEnabledError);
+                context.Application.ExitErrorCodeMinusOne();
                 
                 // Stop the function.
                 return;

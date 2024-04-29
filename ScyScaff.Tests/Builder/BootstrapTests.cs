@@ -24,12 +24,13 @@ public class BootstrapTests
         _mockFileSystem = new();
         
         string dockerTemplateContent = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "./Templates/docker-compose.liquid"));
+        string configContent = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "./Builder/Materials/BootstrapTestScaffolderConfiguration.txt"));
         
         _mockFileSystem.AddDirectory("./ExampleTemplateTree/");
         _mockFileSystem.AddFile("./ExampleTemplateTree/Test.txt.liquid", new MockFileData("{{ config.project_name }}"));
 
         _mockFileSystem.AddDirectory("./TestDirectory/");
-        _mockFileSystem.AddFile(ConfigFilePath, new MockFileData("ProjectName: TestProject\n\nAuth: TestAuth\nDashboard: TestDashboard\n\nGlobalWorkers:\n  - TestGlobalWorker\n\nServices:\n  TestService:\n    Framework: TestFramework\n    Database: TestDatabase\n    Flags:\n      TestFlagKey: TestFlagValue\n    Models:\n      TestModel:\n        TestPropertyKey: TestPropertyValue"));
+        _mockFileSystem.AddFile(ConfigFilePath, new MockFileData(configContent));
         
         _mockFileSystem.AddFile("./Templates/docker-compose.liquid", new MockFileData(dockerTemplateContent));
         
@@ -50,7 +51,10 @@ public class BootstrapTests
             new TestGlobalWorkerTemplatePlugin()
         });
         
-        Mock<IApplicationExit> applicationExitMock = new();
+        Mock<IApplication> applicationExitMock = new();
+        applicationExitMock.Setup(app => app.GetPluginTemplateTreePath(It.IsAny<ITemplatePlugin>()))
+            .Returns("./ExampleTemplateTree/");
+        
         Mock<IDownloader> downloaderMock = new();
         
         _options = new()

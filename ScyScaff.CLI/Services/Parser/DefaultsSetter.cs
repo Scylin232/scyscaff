@@ -11,7 +11,7 @@ public static class DefaultsSetter
         {
             service.Value.Database ??= config.DefaultDatabase;
             service.Value.Framework ??= config.DefaultFramework;
-            service.Value.Flags = service.Value.Flags.Union(config.DefaultFlags).ToDictionary(pair => pair.Key, pair => pair.Value);
+            service.Value.Flags = service.Value.Flags.Union(config.DefaultServiceFlags).ToDictionary(pair => pair.Key, pair => pair.Value);
         }
     }
 }
