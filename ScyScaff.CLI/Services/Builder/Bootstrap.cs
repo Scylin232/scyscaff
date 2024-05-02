@@ -44,7 +44,7 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
         bool dataFolderCreated = false;
         
         // Define the root data folder path
-        _dataFolderPath = fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScyScaff");
+        _dataFolderPath = fileSystem.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ScyScaff/");
 
         // Create the data folder if it doesn't exist
         if (!fileSystem.Directory.Exists(_dataFolderPath))

@@ -9,7 +9,7 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>scyscaff</ToolCommandName>
 
-        <Version>0.1.1</Version>
+        <Version>0.1.2</Version>
     </PropertyGroup>
 
     <ItemGroup>

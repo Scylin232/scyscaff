@@ -12,6 +12,6 @@ public class PathGatherer : IPathGatherer
     {
         Assembly pluginAssembly = plugin.GetType().Assembly;
         
-        return Path.Combine(Path.GetDirectoryName(pluginAssembly.Location)!, "TemplateTree\\");
+        return Path.Combine(Path.GetDirectoryName(pluginAssembly.Location)!, "TemplateTree/");
     }
 }
