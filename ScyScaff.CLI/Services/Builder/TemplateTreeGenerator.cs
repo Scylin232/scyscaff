@@ -1,15 +1,16 @@
 ﻿using System.IO.Abstractions;
 using System.Text;
-using Scriban;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
-using ScyScaff.Core.Models.Builder;
+using Scriban;
+using ScyScaff.CLI.Models.Builder;
+using ScyScaff.CLI.Models.Exceptions;
+using ScyScaff.CLI.Utils.Builder;
+using ScyScaff.CLI.Utils.Constants;
 using ScyScaff.Core.Models.Events;
 using ScyScaff.Core.Models.Parser;
-using ScyScaff.Core.Utils.Builder;
-using ScyScaff.Core.Utils.Constants;
 
-namespace ScyScaff.Core.Services.Builder;
+namespace ScyScaff.CLI.Services.Builder;
 
 // This class is responsible for generating files and directories based on a template tree.
 public static class TemplateTreeGenerator
@@ -28,7 +29,7 @@ public static class TemplateTreeGenerator
             await generationEvents.OnGenerationStarted(entityDirectory, generationContext.ScaffolderEntity);
 
         // Get the path to the template tree.
-        string templateTreePath = generationContext.Application.GetPluginTemplateTreePath(generationContext.TemplatePlugin);
+        string templateTreePath = generationContext.PathGatherer.GetPluginTemplateTreePath(generationContext.TemplatePlugin);
         
         // Generate a directory tree nodes in template tree directory.
         DirectoryTreeNode rootTemplateTreeNode = DirectoryTree.GetDirectoryTree(generationContext.FileSystem, templateTreePath);
@@ -139,19 +140,13 @@ public static class TemplateTreeGenerator
 
         // Determine target file path, trimming ".liquid" from the file name.
         string targetFilePath = newFilePath[..^7];
-        
+
         // If the file exists, we should start the process of adding new lines rather than replacing them all.
         if (context.FileSystem.File.Exists(targetFilePath))
         {
-            // Check if add-mode is enabled, if not, stop the program.
+            // Check if add-mode is enabled, if not, throw an exception.
             if (!context.IsAddModeEnabled)
-            {
-                Console.WriteLine(Messages.AddModeNotEnabledError);
-                context.Application.ExitErrorCodeMinusOne();
-                
-                // Stop the function.
-                return;
-            }
+                throw new AddModeNotEnabledException(Messages.AddModeNotEnabledError);
 
             // Call the function to add new lines if everything is good to go.
             AddNewLines(context.FileSystem, targetFilePath, fileContentResult);

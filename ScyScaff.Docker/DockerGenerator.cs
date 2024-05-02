@@ -1,6 +1,7 @@
 ﻿using System.IO.Abstractions;
 using Scriban;
 using ScyScaff.Docker.Models.Builder;
+using ScyScaff.Docker.Constants;
 
 namespace ScyScaff.Docker;
 
@@ -16,7 +17,7 @@ public static class DockerGenerator
             .ToList();
         
         // Parse & Render Docker-Compose template. 
-        Template dockerComposeTemplate = Template.Parse(fileSystem.File.ReadAllText("./Templates/docker-compose.liquid"));
+        Template dockerComposeTemplate = Template.Parse(Templates.DockerCompose);
         string dockerComposeResult = dockerComposeTemplate.Render(new
         {
             Services = composeServices,

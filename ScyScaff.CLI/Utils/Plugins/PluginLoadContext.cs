@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 
-namespace ScyScaff.Core.Utils.Plugins;
+namespace ScyScaff.CLI.Utils.Plugins;
 
 // Initializes a new instance of the PluginLoadContext class
 // with the provided plugin path.

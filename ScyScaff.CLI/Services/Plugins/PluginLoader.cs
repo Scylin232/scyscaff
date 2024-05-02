@@ -1,9 +1,9 @@
 ﻿using System.IO.Abstractions;
 using System.Reflection;
-using ScyScaff.Core.Utils.Constants;
-using ScyScaff.Core.Utils.Plugins;
+using ScyScaff.CLI.Utils.Constants;
+using ScyScaff.CLI.Utils.Plugins;
 
-namespace ScyScaff.Core.Services.Plugins;
+namespace ScyScaff.CLI.Services.Plugins;
 
 // A generic static class responsible for loading and creating plugins
 internal static class PluginLoader<T>
@@ -28,8 +28,8 @@ internal static class PluginLoader<T>
         string root = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(
             Enumerable.Range(0, 5).Aggregate(
                 fileSystem.Path.GetDirectoryName(typeof(Program).Assembly.Location), 
-                (current, _) => fileSystem.Directory.GetParent(current).FullName
-            )
+                (current, _) => fileSystem.Directory.GetParent(current!)!.FullName
+            )!
         ));
         
         // Constructs the absolute path of the plugin

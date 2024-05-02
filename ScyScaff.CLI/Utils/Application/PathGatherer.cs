@@ -2,14 +2,11 @@
 using ScyScaff.Core.Models.Application;
 using ScyScaff.Core.Models.Plugins;
 
-namespace ScyScaff.Core.Utils.Application;
+namespace ScyScaff.CLI.Utils.Application;
 
 // Represents a class for handling application exit.
-public class Application : IApplication
+public class PathGatherer : IPathGatherer
 {
-    // Exits the application with the exit code -1.
-    public void ExitErrorCodeMinusOne() => Environment.Exit(-1);
-    
     // Receives plugin template tree path from its assembly.
     public string GetPluginTemplateTreePath(ITemplatePlugin plugin)
     {

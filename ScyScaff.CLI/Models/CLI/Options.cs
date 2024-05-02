@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace ScyScaff.Core.Models.CLI;
+namespace ScyScaff.CLI.Models.CLI;
 
 // CLI arguments (options) model.
 public class Options

@@ -2,8 +2,7 @@
 
 namespace ScyScaff.Core.Models.Application;
 
-public interface IApplication
+public interface IPathGatherer
 {
-    void ExitErrorCodeMinusOne();
     string GetPluginTemplateTreePath(ITemplatePlugin plugin);
 }

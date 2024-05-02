@@ -1,22 +1,29 @@
 ﻿using System.IO.Abstractions;
 using CommandLine;
-using ScyScaff.Core.Models.CLI;
-using ScyScaff.Core.Services.Builder;
-using ScyScaff.Core.Services.Plugins;
-using ScyScaff.Core.Utils.Application;
+using ScyScaff.CLI.Models.CLI;
+using ScyScaff.CLI.Services.Builder;
+using ScyScaff.CLI.Services.Plugins;
+using ScyScaff.CLI.Utils.Application;
 
 // Parse given arguments and start callback with input data (Serves as application entry point).
 await Parser.Default.ParseArguments<Options>(args).WithParsedAsync(async options =>
 {
-    // Initialize services.
-    FileSystem fileSystem = new();
-    PluginGatherer pluginGatherer = new();
-    Application application = new();
-    Downloader downloader = new();
-    
-    // Initialize bootstrap.
-    Bootstrap bootstrap = new(fileSystem, pluginGatherer, application, downloader, options);
+    try
+    {
+        // Initialize services.
+        FileSystem fileSystem = new();
+        PluginGatherer pluginGatherer = new();
+        PathGatherer pathGatherer = new();
+        Downloader downloader = new();
 
-    // Start generation.
-    await bootstrap.StartGeneration();
+        // Initialize bootstrap.
+        Bootstrap bootstrap = new(fileSystem, pluginGatherer, pathGatherer, downloader, options);
+
+        // Start generation.
+        await bootstrap.StartGeneration();
+    }
+    catch (Exception exception)
+    {
+        Console.WriteLine(exception.Message);
+    }
 });

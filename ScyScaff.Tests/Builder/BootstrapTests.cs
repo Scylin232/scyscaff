@@ -1,11 +1,11 @@
 ﻿using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Moq;
+using ScyScaff.CLI.Models.CLI;
+using ScyScaff.CLI.Models.Exceptions;
+using ScyScaff.CLI.Services.Builder;
 using ScyScaff.Core.Models.Application;
-using ScyScaff.Core.Models.CLI;
-using ScyScaff.Core.Models.Exceptions;
 using ScyScaff.Core.Models.Plugins;
-using ScyScaff.Core.Services.Builder;
 using ScyScaff.Tests.Models;
 
 namespace ScyScaff.Tests.Builder;
@@ -23,16 +23,13 @@ public class BootstrapTests
         // Arrange
         _mockFileSystem = new();
         
-        string dockerTemplateContent = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "./Templates/docker-compose.liquid"));
         string configContent = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "./Builder/Materials/BootstrapTestScaffolderConfiguration.txt"));
         
-        _mockFileSystem.AddDirectory("./ExampleTemplateTree/");
-        _mockFileSystem.AddFile("./ExampleTemplateTree/Test.txt.liquid", new MockFileData("{{ config.project_name }}"));
+        _mockFileSystem.AddDirectory(Constants.TemplateTreePath);
+        _mockFileSystem.AddFile($"{Constants.TemplateTreePath}Test.txt.liquid", new MockFileData("{{ config.project_name }}"));
 
         _mockFileSystem.AddDirectory("./TestDirectory/");
         _mockFileSystem.AddFile(ConfigFilePath, new MockFileData(configContent));
-        
-        _mockFileSystem.AddFile("./Templates/docker-compose.liquid", new MockFileData(dockerTemplateContent));
         
         Mock<IPluginGatherer> pluginGatherMock = new();
 
@@ -51,20 +48,20 @@ public class BootstrapTests
             new TestGlobalWorkerTemplatePlugin()
         });
         
-        Mock<IApplication> applicationExitMock = new();
-        applicationExitMock.Setup(app => app.GetPluginTemplateTreePath(It.IsAny<ITemplatePlugin>()))
-            .Returns("./ExampleTemplateTree/");
+        Mock<IPathGatherer> pathGathererMock = new();
+        pathGathererMock.Setup(app => app.GetPluginTemplateTreePath(It.IsAny<ITemplatePlugin>()))
+            .Returns(Constants.TemplateTreePath);
         
         Mock<IDownloader> downloaderMock = new();
         
         _options = new()
         {
-            Add = false,
+            Add = true,
             Path = "./TestDirectory/",
             File = "config.yml"
         };
 
-        _bootstrap = new(_mockFileSystem, pluginGatherMock.Object, applicationExitMock.Object, downloaderMock.Object, _options);
+        _bootstrap = new(_mockFileSystem, pluginGatherMock.Object, pathGathererMock.Object, downloaderMock.Object, _options);
     }
     
     [Fact]
@@ -75,7 +72,7 @@ public class BootstrapTests
         
         // Assert
         string testFileContent = await _mockFileSystem.File.ReadAllTextAsync("./Test.txt");
-        Assert.Equal("TestProject", testFileContent);
+        Assert.Equal(Constants.ProjectName, testFileContent);
 
         string dockerFileContent = await _mockFileSystem.File.ReadAllTextAsync("./TestDirectory/docker-compose.dev.yml");
         Assert.NotEqual(string.Empty, dockerFileContent);

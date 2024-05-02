@@ -1,4 +1,4 @@
-﻿using ScyScaff.Core.Utils.Builder;
+﻿using ScyScaff.CLI.Utils.Builder;
 
 namespace ScyScaff.Tests.Builder;
 

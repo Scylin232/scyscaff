@@ -1,15 +1,15 @@
 ﻿using System.IO.Abstractions;
+using ScyScaff.Core.Models.Application;
 using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
-using ScyScaff.Core.Models.Application;
 using ScyScaff.Docker.Models.Builder;
 
-namespace ScyScaff.Core.Services.Builder;
+namespace ScyScaff.CLI.Services.Builder;
 
-public class TreeGenerationContext(IFileSystem fileSystem, IApplication application, ScaffolderConfig config, List<DockerComposeService> composeServices, IScaffolderEntity scaffolderEntity, ITemplatePlugin templatePlugin, string entityName, bool isAddModeEnabled)
+public class TreeGenerationContext(IFileSystem fileSystem, IPathGatherer pathGatherer, ScaffolderConfig config, List<DockerComposeService> composeServices, IScaffolderEntity scaffolderEntity, ITemplatePlugin templatePlugin, string entityName, bool isAddModeEnabled)
 {
     public IFileSystem FileSystem { get; } = fileSystem;
-    public IApplication Application { get; } = application;
+    public IPathGatherer PathGatherer { get; } = pathGatherer;
     
     public ScaffolderConfig Config { get; } = config;
     public List<DockerComposeService> ComposeServices { get; } = composeServices;

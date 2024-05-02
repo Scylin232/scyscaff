@@ -17,6 +17,6 @@ public class TestFrameworkPlugin : IFrameworkTemplatePlugin, IGenerationEvents
         { "TestFlagKey", new[] { "TestFlagValue" } }
     };
     
-    public Task OnGenerationStarted(IDirectoryInfo serviceDirectory, IScaffolderEntity? entity) => Task.CompletedTask;
-    public Task OnGenerationEnded(IDirectoryInfo serviceDirectory, IScaffolderEntity? entity) => Task.CompletedTask;
+    public Task OnGenerationStarted(IDirectoryInfo entityDirectory, IScaffolderEntity? entity) => Task.CompletedTask;
+    public Task OnGenerationEnded(IDirectoryInfo entityDirectory, IScaffolderEntity? entity) => Task.CompletedTask;
 }

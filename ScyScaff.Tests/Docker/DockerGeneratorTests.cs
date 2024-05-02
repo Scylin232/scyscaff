@@ -11,13 +11,11 @@ public class DockerGeneratorTests
     public void GenerateComposeServices_SuccessTemplateGeneration_Test()
     {
         // Arrange
-        string templateContent = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "./Templates/docker-compose.liquid"));
         string expectedFileContent = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "./Docker/Materials/DockerComposeOutput.txt"));
         
         MockFileSystem mockFileSystem = new();
         
         mockFileSystem.AddDirectory(Constants.WorkingDirectory);
-        mockFileSystem.AddFile("./Templates/docker-compose.liquid", new MockFileData(templateContent));
 
         List<DockerComposeService> composeServices = new()
         {

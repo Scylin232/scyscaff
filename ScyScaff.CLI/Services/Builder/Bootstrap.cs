@@ -1,18 +1,18 @@
 ﻿using System.IO.Abstractions;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
+using ScyScaff.CLI.Models.CLI;
+using ScyScaff.CLI.Models.Exceptions;
+using ScyScaff.CLI.Services.Parser;
+using ScyScaff.CLI.Utils.Constants;
 using ScyScaff.Core.Models.Application;
-using ScyScaff.Core.Models.CLI;
-using ScyScaff.Core.Models.Exceptions;
 using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
-using ScyScaff.Core.Services.Parser;
-using ScyScaff.Core.Utils.Constants;
 using ScyScaff.Docker;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
-namespace ScyScaff.Core.Services.Builder;
+namespace ScyScaff.CLI.Services.Builder;
 
-public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, IApplication application, IDownloader downloader, Options options)
+public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, IPathGatherer pathGatherer, IDownloader downloader, Options options)
 {
     private ScaffolderConfig _scaffolderConfig = new();
 
@@ -135,7 +135,7 @@ public class Bootstrap(IFileSystem fileSystem, IPluginGatherer pluginGatherer, I
     private async Task GenerateComponents()
     {
         // Initialize component generator.
-        ComponentGenerator componentGenerator = new(fileSystem, application, _scaffolderConfig, _workingDirectory, options);
+        ComponentGenerator componentGenerator = new(fileSystem, pathGatherer, _scaffolderConfig, _workingDirectory, options);
     
         // Finally! Generate services.
         foreach (KeyValuePair<string, ScaffolderService> service in _scaffolderConfig.Services)

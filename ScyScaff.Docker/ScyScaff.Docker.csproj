@@ -8,10 +8,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ScyScaff.Core\ScyScaff.Core.csproj" />
-        
-      <Content Include="./Templates/**/*">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
     <ItemGroup>

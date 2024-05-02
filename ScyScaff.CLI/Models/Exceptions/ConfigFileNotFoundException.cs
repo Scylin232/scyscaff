@@ -1,3 +1,3 @@
-﻿namespace ScyScaff.Core.Models.Exceptions;
+﻿namespace ScyScaff.CLI.Models.Exceptions;
 
 public class ConfigFileNotFoundException(string errorMessage) : Exception(errorMessage);

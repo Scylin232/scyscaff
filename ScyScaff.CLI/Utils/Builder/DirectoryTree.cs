@@ -1,7 +1,7 @@
 ﻿using System.IO.Abstractions;
-using ScyScaff.Core.Models.Builder;
+using ScyScaff.CLI.Models.Builder;
 
-namespace ScyScaff.Core.Utils.Builder;
+namespace ScyScaff.CLI.Utils.Builder;
 
 // Represents a utility class for constructing directory trees
 public static class DirectoryTree

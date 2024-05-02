@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using ScyScaff.CLI.Utils.Constants;
 using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
-using ScyScaff.Core.Utils.Constants;
 
-namespace ScyScaff.Core.Services.Parser;
+namespace ScyScaff.CLI.Services.Parser;
 
 public static class Validator
 {
@@ -86,7 +86,7 @@ public static class Validator
             if (!plugin.SupportedFlags.ContainsKey(flag.Key))
                 return Messages.PluginFlagKeyNotSupported(plugin.SupportedFlags.Keys, flag.Key, plugin.Name);
 
-            if (!plugin.SupportedFlags[flag.Key].Contains(flag.Value))
+            if (!plugin.SupportedFlags[flag.Key].Contains(flag.Value) && !plugin.SupportedFlags[flag.Key].Contains("*"))
                 return Messages.PluginFlagValueNotSupported(plugin.SupportedFlags[flag.Key], flag.Key, flag.Value, plugin.Name);
         }
 

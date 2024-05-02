@@ -1,4 +1,4 @@
-﻿namespace ScyScaff.Core.Utils.Builder;
+﻿namespace ScyScaff.CLI.Utils.Builder;
 
 public static class FilePathParser
 {

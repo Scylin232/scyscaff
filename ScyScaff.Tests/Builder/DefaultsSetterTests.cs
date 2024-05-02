@@ -1,5 +1,5 @@
-﻿using ScyScaff.Core.Models.Parser;
-using ScyScaff.Core.Services.Parser;
+﻿using ScyScaff.CLI.Services.Parser;
+using ScyScaff.Core.Models.Parser;
 
 namespace ScyScaff.Tests.Builder;
 

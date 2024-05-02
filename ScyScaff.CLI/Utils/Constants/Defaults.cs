@@ -1,4 +1,4 @@
-﻿namespace ScyScaff.Core.Utils.Constants;
+﻿namespace ScyScaff.CLI.Utils.Constants;
 
 internal static class Defaults
 {

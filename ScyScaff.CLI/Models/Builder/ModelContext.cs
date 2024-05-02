@@ -1,4 +1,4 @@
-﻿namespace ScyScaff.Core.Models.Builder;
+﻿namespace ScyScaff.CLI.Models.Builder;
 
 // This class is needed for TemplateTreeGenerator.GenerateServiceFile function
 

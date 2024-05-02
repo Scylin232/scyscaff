@@ -5,7 +5,11 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>ScyScaff.Core</RootNamespace>
+        
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>scyscaff</ToolCommandName>
+
+        <Version>0.1.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,12 +17,6 @@
       <PackageReference Include="DiffPlex" Version="1.7.2" />
       <PackageReference Include="Scriban" Version="5.9.1" />
       <PackageReference Include="YamlDotNet" Version="13.7.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="..\Test-Directory\scyscaff.yml">
-        <Link>Services\Test-Directory\scyscaff.yml</Link>
-      </Content>
     </ItemGroup>
 
     <ItemGroup>

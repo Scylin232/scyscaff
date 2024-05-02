@@ -1,7 +1,7 @@
-﻿using ScyScaff.Core.Models.Parser;
+﻿using ScyScaff.CLI.Services.Parser;
+using ScyScaff.CLI.Utils.Constants;
+using ScyScaff.Core.Models.Parser;
 using ScyScaff.Core.Models.Plugins;
-using ScyScaff.Core.Services.Parser;
-using ScyScaff.Core.Utils.Constants;
 using ScyScaff.Tests.Models;
 
 namespace ScyScaff.Tests.Builder;
@@ -50,6 +50,15 @@ public class ValidatorTests
                     Flags = new Dictionary<string, string>
                     {
                         { "TestFlagKey", "TestFlagValue" }
+                    },
+                    Models = new Dictionary<string, Dictionary<string, string>>
+                    {
+                        {
+                            "TestModel", new Dictionary<string, string>
+                            {
+                                { "TestField", "TestDataType" }
+                            }
+                        }
                     }
                 }
             }

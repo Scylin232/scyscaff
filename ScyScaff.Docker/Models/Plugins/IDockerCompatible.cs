@@ -5,5 +5,5 @@ namespace ScyScaff.Docker.Models.Plugins;
 
 public interface IDockerCompatible
 {
-    IEnumerable<DockerComposeService> GetComposeServices(string projectName, IScaffolderEntity scaffolderEntity, string serviceName, int serviceIndex);
+    IEnumerable<DockerComposeService> GetComposeServices(string projectName, IScaffolderEntity entity, string entityName, int entityIndex);
 }

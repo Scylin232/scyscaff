@@ -1,6 +1,6 @@
 ﻿using ScyScaff.Core.Models.Parser;
 
-namespace ScyScaff.Core.Services.Parser;
+namespace ScyScaff.CLI.Services.Parser;
 
 public static class DefaultsSetter
 {
