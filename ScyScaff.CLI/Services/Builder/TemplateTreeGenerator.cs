@@ -138,12 +138,21 @@ public static class TemplateTreeGenerator
         Template fileContentTemplate = Template.Parse(context.FileSystem.File.ReadAllText(filePath));
         string fileContentResult = fileContentTemplate.Render(templateParameters);
 
+        // If the rendered result is empty, stop writing the file.
+        if (fileContentResult.Length <= 0) return;
+        
         // Determine target file path, trimming ".liquid" from the file name.
         string targetFilePath = newFilePath[..^7];
 
-        // If the file exists, we should start the process of adding new lines rather than replacing them all.
+        // If the file exists and its content is different from the render result, we should start the process of adding new lines rather than replacing them all.
         if (context.FileSystem.File.Exists(targetFilePath))
         {
+            // Read the data from an existing file for further verification.
+            string targetFileContent = context.FileSystem.File.ReadAllText(targetFilePath);
+
+            // If the rendered result and the existing file content are the same, we stop the function.
+            if (targetFileContent == fileContentResult) return;
+            
             // Check if add-mode is enabled, if not, throw an exception.
             if (!context.IsAddModeEnabled)
                 throw new AddModeNotEnabledException(Messages.AddModeNotEnabledError);

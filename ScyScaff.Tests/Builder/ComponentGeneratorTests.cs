@@ -160,15 +160,15 @@ public class ComponentGeneratorTests
         TestFrameworkPlugin testFrameworkPlugin = new();
         
         _mockFileSystem.AddDirectory(Constants.TemplateTreePath);
-        _mockFileSystem.AddFile($"{Constants.TemplateTreePath}Test.txt.liquid", new MockFileData("Test Content"));
+        _mockFileSystem.AddFile($"{Constants.TemplateTreePath}Test.txt.liquid", new MockFileData("Test Content {{ entity_name }}"));
 
         ComponentGenerator componentGenerator = new(_mockFileSystem, _application.Object, ScaffolderConfig, Constants.WorkingDirectory, options);
         
         // Act
-        await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test", ScaffolderConfig.Services["TestService"]);
+        await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test1", ScaffolderConfig.Services["TestService"]);
         
         // Assert
-        await Assert.ThrowsAsync<AddModeNotEnabledException>(async () => await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test", ScaffolderConfig.Services["TestService"]));
+        await Assert.ThrowsAsync<AddModeNotEnabledException>(async () => await componentGenerator.GenerateComponent(testFrameworkPlugin, "Test2", ScaffolderConfig.Services["TestService"]));
     }
 
     [Fact]

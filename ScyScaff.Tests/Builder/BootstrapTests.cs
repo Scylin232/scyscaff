@@ -72,7 +72,7 @@ public class BootstrapTests
         
         // Assert
         string testFileContent = await _mockFileSystem.File.ReadAllTextAsync("./Test.txt");
-        Assert.Equal(Constants.ProjectName, testFileContent);
+        Assert.Equal("TestProject", testFileContent);
 
         string dockerFileContent = await _mockFileSystem.File.ReadAllTextAsync("./TestDirectory/docker-compose.dev.yml");
         Assert.NotEqual(string.Empty, dockerFileContent);
