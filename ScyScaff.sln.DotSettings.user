@@ -3,9 +3,9 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=2bf598fb_002D47a4_002D469c_002D80ef_002D888ef6e88eaa/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="DockerGeneratorTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="D:\dev\CSharp\ScyScaff\ScyScaff.Tests" Presentation="&amp;lt;ScyScaff.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=08614db3_002D505c_002D4833_002D9018_002D9bcd108252cc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="dasdasf" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=08614db3_002D505c_002D4833_002D9018_002D9bcd108252cc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="dasdasf" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="D:\dev\CSharp\ScyScaff\ScyScaff.Tests" Presentation="&amp;lt;ScyScaff.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=322abd70_002D207a_002D41fb_002Da09d_002Da667527ed674/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from &amp;lt;ScyScaff.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=322abd70_002D207a_002D41fb_002Da09d_002Da667527ed674/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;ScyScaff.Tests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="D:\dev\CSharp\ScyScaff\ScyScaff.Tests" Presentation="&amp;lt;ScyScaff.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

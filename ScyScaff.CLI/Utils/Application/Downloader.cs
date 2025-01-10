@@ -15,16 +15,13 @@ public class Downloader : IDownloader
     // so several versions can use the same download links.
     private static Dictionary<string, string> GetStandardPluginsDownloadUrls(string version)
     {
-        if (version == "1.0.0.0")
-            return new Dictionary<string, string>
-            {
-                { "aspnet-ddd", "" },
-                { "svelte-crud", "" },
-                { "elk", "" },
-                { "grafana-prometheus", "" }
-            };
-        
-        return new Dictionary<string, string>();
+        return new Dictionary<string, string>
+        {
+            { "aspnet-ddd", "https://github.com/Scylin232/scyscaff-aspnet-plugin/releases/download/Release/aspnet-ddd-v1.0.0.zip" },
+            { "svelte-crud", "https://github.com/Scylin232/scyscaff-svelte-crud-plugin/releases/download/Release/svelte-crud-v1.0.0.zip" },
+            { "elk", "https://github.com/Scylin232/scyscaff-elk-stack-plugin/releases/download/Release/elk-v1.0.0.zip" },
+            { "grafana-prometheus", "https://github.com/Scylin232/scyscaff-grafana-prometheus-plugin/releases/download/Release/grafana-prometheus-v1.0.0.zip" }
+        };
     }
     
     public async Task DownloadDefaultPlugins(IFileSystem fileSystem, string pluginsFolderPath)
@@ -41,6 +38,9 @@ public class Downloader : IDownloader
         // Iterates through each download URL and downloads the corresponding plugin
         foreach (KeyValuePair<string, string> downloadUrl in downloadUrls)
         {
+            // Log the plugin download.
+            Console.WriteLine($"Downloading the standard plugin \"{downloadUrl.Key}\" from the url: {downloadUrl.Value}");
+            
             // Constructs the download path for the plugin
             string downloadPath = fileSystem.Path.Combine(fileSystem.Path.GetTempPath(), $"{downloadUrl.Key}.zip");
             
